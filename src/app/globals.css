@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+https://tailwindcss.com/docs/adding-custom-styles#using-css-and-layer
+@layer utilities {
+  .content-auto {
+    content-visibility: auto;
+  }
+}
+*/
+
+:root {
+	--scrollbar-track-color: rgba(0, 0, 0, 0.05);
+	--scrollbar-thumb-color: rgba(0, 0, 0, 0.2);
+	--bg-checker: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill-opacity=".05"><path d="M8 0h8v8H8zM0 8h8v8H0z"/></svg>');
+	--bg-checker-color: #fff;
+}
+
+html.dark {
+	--scrollbar-track-color: rgba(255, 255, 255, 0.05);
+	--scrollbar-thumb-color: rgba(255, 255, 255, 0.2);
+	--bg-checker-color: #555;
+}
+
+*::-webkit-scrollbar {
+	width: 7px;
+}
+*::-webkit-scrollbar-track {
+	background: var(--scrollbar-track-color);
+}
+*::-webkit-scrollbar-thumb {
+	background: var(--scrollbar-thumb-color);
+}
+
+input[type='search']::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+	/* height: 1em;
+  width: 1em;
+  border-radius: 50em;
+  background: url(https://pro.fontawesome.com/releases/v5.10.0/svgs/solid/times-circle.svg) no-repeat 50% 50%;
+  background-size: contain;
+  opacity: 0;
+  pointer-events: none; */
+}
+
+html {
+	font-size: 14px;
+}
+
+.bg-checker {
+	background-color: var(--bg-checker-color);
+	background-image: var(--bg-checker);
+}
+
+.color-picker.react-colorful {
+	width: auto;
+}
+
+.color-picker .react-colorful__saturation {
+	border-radius: 5px;
+	border-bottom: none;
+}
+
+.color-picker .react-colorful__hue,
+.color-picker .react-colorful__alpha {
+	height: 14px;
+	border-radius: 10px;
+	margin-top: 10px;
+}
+
+.color-picker .react-colorful__hue-pointer,
+.color-picker .react-colorful__saturation-pointer,
+.color-picker .react-colorful__alpha-pointer {
+	width: 20px;
+	height: 20px;
+}
+
+.carbon-wrap .carbon-img {
+	float: left;
+	margin-right: 5px;
+}
+
+/* GrapesJS styles */
+.block-media path,
+.block-media rect,
+.layer-item path {
+	fill: currentColor;
+}
+
+.gjs-resizer-h.gjs-resizer-h {
+	border-radius: 999px;
+	border-width: 2px;
+}
+
+/* Hide default preview off button */
+.gjs-off-prv {
+	display: none !important;
+}
+
+/* Fix toolbar dimension */
+.gjs-toolbar-items {
+	display: flex;
+}
+
+.gjs-badge {
+	line-height: normal;
+}
