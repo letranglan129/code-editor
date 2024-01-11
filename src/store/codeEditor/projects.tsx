@@ -4,7 +4,13 @@ import { FileSystemTree } from '@webcontainer/api'
 import { makeAutoObservable } from 'mobx'
 import { getStore, InitialStoreState, Store, useStore } from '.'
 import projectService from '../../services/ProjectSerivce'
-import { FileDataType, FileEntriesType, FileTreeNomarlizedType, ProjectDataType } from '../../utils/types'
+import {
+	FileDataType,
+	FileEntriesType,
+	FileTreeNomarlizedType,
+	PackageDependencyType,
+	ProjectDataType,
+} from '../../utils/types'
 import axios from 'axios'
 import { convertContainerFiles, createFileEntries, createFileModels, streeNormalize } from '../../utils/trees'
 
@@ -17,6 +23,7 @@ export class ProjectCodeStore {
 	treeFiles: FileTreeNomarlizedType[] = []
 	containerTreeFiles: FileSystemTree = {}
 	treeFilesUpdateCount: number = 0
+	packageDependencies: PackageDependencyType[] = []
 
 	constructor(store: Store, initialState?: InitialStoreState<ProjectCodeStore>) {
 		this.store = store
@@ -181,6 +188,14 @@ export class ProjectCodeStore {
 	// Force tree re-render
 	forceTreeUpdate() {
 		this.treeFilesUpdateCount++
+	}
+
+	addPackageDependency(dependency: PackageDependencyType[]) {
+		this.packageDependencies = [...this.packageDependencies, ...dependency]
+	}
+
+	removePackageDependency(dependency: PackageDependencyType[]) {
+		this.packageDependencies = this.packageDependencies.filter(dep => !dependency.includes(dep))
 	}
 }
 

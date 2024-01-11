@@ -44,6 +44,8 @@
     "monaco-jsx-syntax-highlight": "^1.2.0",
     "next": "14.0.4",
     "npm": "^10.2.5",
+    "overlayscrollbars": "^2.4.6",
+    "overlayscrollbars-react": "^0.5.3",
     "prettier": "^3.1.1",
     "program-language-detector": "^0.0.12",
     "rctx-contextmenu": "^1.4.1",

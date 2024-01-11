@@ -5,6 +5,7 @@ import editorService from '../../../../services/EditorService'
 import projectService from '../../../../services/ProjectSerivce'
 import * as monacoHelpers from '../../../../utils/monacoHelpers'
 import { sendEvent } from '../../../../utils/events'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 
 export type EditorRefType = {
 	openFile: (file: FileTreeNomarlizedType) => void
@@ -93,6 +94,25 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 		[currentTab],
 	)
 
+	// Handles opening files on the navbar on startup.
+	const handleStartUp = useCallback((pathNames: string[]) => {
+		const filesResult = pathNames
+			.map((pathName: string) => projectService.getEntryFromPath(pathName))
+			.filter(file => file)
+
+		if (filesResult.length) {
+			requestIdleCallback(() => {
+				const lastFile = filesResult[filesResult.length - 1]
+
+				setCurrentTab({ id: lastFile.id, isPreview: false })
+				setTabs(prev => [...prev, ...filesResult.map(file => ({ id: file.id, isPreview: false }))])
+
+				lastFile?.model && editorService.getEditor()?.setModel(lastFile.model)
+				editorService.setCurrentFile(lastFile)
+			})
+		}
+	}, [])
+
 	useImperativeHandle(
 		ref,
 		() => ({
@@ -108,7 +128,7 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 		}),
 		[handleOpen, handlePreview, handleClose],
 	)
-	
+
 	useEffect(() => {
 		if (!currentTab) return
 		const file = projectService.getEntryFromId(currentTab.id)
@@ -162,22 +182,31 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 		sendEvent('tree:file-change', currentTab)
 	}, [currentTab])
 
-
 	return (
-		<ul className="flex marker:not-sr-only h-[40px] bg-[#202327]">
-			{tabs.map(tab => (
-				<NavigationItem
-					data={tab}
-					isPreview={!!tab.isPreview}
-					active={currentTab?.id === tab.id}
-					key={tab.id}
-					onMouseDown={handleSwitchTab}
-					onDoubleClick={handleOpen}
-					onClose={handleClose}
-					// onCloseOthers={handleCloseOthers}
-					// onCloseAll={handleCloseAll}
-				/>
-			))}
-		</ul>
+		<OverlayScrollbarsComponent
+			options={{
+				scrollbars: {
+					autoHide: 'leave',
+				},
+			}}
+			className="flex-shrink-0 navigation-scrollbar"
+			defer
+		>
+			<ul className="flex marker:not-sr-only h-[40px] bg-[#202327] flex-shrink-0">
+				{tabs.map(tab => (
+					<NavigationItem
+						data={tab}
+						isPreview={!!tab.isPreview}
+						active={currentTab?.id === tab.id}
+						key={tab.id}
+						onMouseDown={handleSwitchTab}
+						onDoubleClick={handleOpen}
+						onClose={handleClose}
+						// onCloseOthers={handleCloseOthers}
+						// onCloseAll={handleCloseAll}
+					/>
+				))}
+			</ul>
+		</OverlayScrollbarsComponent>
 	)
 })

@@ -12,11 +12,22 @@ export interface Props {
 	open?: boolean
 	sticky?: boolean
 	iconPosition?: 'left' | 'right'
+	containerClassName?: string
+	wrapperClassName?: string
 }
 
-export default function Accordion({ className, handler, children, sticky, open: isOpen, iconPosition }: Props) {
+export default function Accordion({
+	className,
+	handler,
+	children,
+	sticky,
+	open: isOpen,
+	iconPosition,
+	containerClassName,
+	wrapperClassName,
+}: Props) {
 	return (
-		<Disclosure as="div" defaultOpen={isOpen} className="relative">
+		<Disclosure as="div" defaultOpen={isOpen} className={`relative ${containerClassName || ''}`}>
 			<Disclosure.Button
 				className={({ open }) =>
 					cx(
@@ -52,7 +63,7 @@ export default function Accordion({ className, handler, children, sticky, open: 
 				)}
 			</Disclosure.Button>
 
-			<Disclosure.Panel>{children}</Disclosure.Panel>
+			<Disclosure.Panel className={`${wrapperClassName || ''}`}>{children}</Disclosure.Panel>
 		</Disclosure>
 	)
 }

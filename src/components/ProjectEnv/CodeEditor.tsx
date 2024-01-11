@@ -17,7 +17,7 @@ import { listenEvent, sendEvent } from '../../utils/events'
 import Accordion from '../Accordion'
 import Browser from './Browser'
 import StartWebContainer from './StartWebContainer'
-import Terminal from './Terminal'
+import Terminal, { TerminalRefType } from './Terminal'
 import { createFileEntries, createFileModels } from '../../utils/trees'
 import FileExplorer, { FileExplorerRefType } from './FileExplorer'
 import Editor, { EditorNavRefType } from './Editor'
@@ -27,6 +27,7 @@ import projectService from '../../services/ProjectSerivce'
 import Navigation, { EditorRefType } from './Editor/Navigation'
 import webContainerService from '../../services/WebContainerService'
 import { uuidv4 } from '../../utils/strings'
+import Dependencies from './Dependencies'
 
 monaco.editor.defineTheme('my-dark', {
 	base: 'vs-dark',
@@ -55,6 +56,7 @@ export default observer(function CodeEditor() {
 	const [isResizing, setIsStartResize] = useState(false)
 	const projectCodeStore = useProjectCodeStore()
 	const editorRef = useRef<EditorNavRefType>(null)
+	const terminalRef = useRef<TerminalRefType>(null)
 
 	const fileExplorerRef = useRef<FileExplorerRefType>(null)
 
@@ -101,12 +103,12 @@ export default observer(function CodeEditor() {
 		editorRef.current?.navRef?.closeFile(file)
 	}, [])
 
-	const onChange = () => {
+	const onChange = useCallback(() => {
 		const file = editorService.getCurrentFile()
 		// navbarRef.current.setDisabledSaveBtn(false)
 
 		file && !file.isChanged && projectCodeStore.editEntry({ ...file, isChanged: true })
-	}
+	}, [])
 
 	const onRename = useCallback(async ({ oldPath, newPath }: { oldPath: string; newPath: string }) => {
 		// Create folder if not exists
@@ -122,7 +124,7 @@ export default observer(function CodeEditor() {
 		)
 	}, [])
 
-	const onMove: MoveHandler<FileTreeNomarlizedType> = async data => {
+	const onMove: MoveHandler<FileTreeNomarlizedType> = useCallback(async data => {
 		const parentEntry = projectService.getEntryFromId(data.parentId || '')
 		if (!parentEntry) return
 
@@ -140,8 +142,9 @@ export default observer(function CodeEditor() {
 		for (const command of mvCommands) {
 			await webContainerService.runCommand('mv', command.split(' ').slice(1))
 		}
-	}
-	const onCreate = (file: FileDataType) => {
+	}, [])
+
+	const onCreate = useCallback((file: FileDataType) => {
 		const parent = projectService.getEntryFromId(file.parent_id || '')
 		if (!parent) return
 		// @ts-ignore
@@ -173,8 +176,9 @@ export default observer(function CodeEditor() {
 				}
 			}
 		})
-	}
-	const onAddNew = (type: string) => {
+	}, [])
+
+	const onAddNew = useCallback((type: string) => {
 		const isFile = type === 'file'
 
 		const node = fileExplorerRef.current?.mostRecentNode
@@ -221,15 +225,25 @@ export default observer(function CodeEditor() {
 			fileExplorerRef.current?.select(newEntry.id)
 			fileExplorerRef.current?.scrollTo(newEntry.id)
 		})
-	}
+	}, [])
+
 	const onDelete = () => {}
 
-	const onClick = (file: FileTreeNomarlizedType) => {
+	const onClick = useCallback((file: FileTreeNomarlizedType) => {
 		editorRef.current?.navRef?.previewFile({ file, focusEditor: false })
-	}
-	const onDoubleClick = (file: FileTreeNomarlizedType) => {
+	}, [])
+
+	const onDoubleClick = useCallback((file: FileTreeNomarlizedType) => {
 		editorRef.current?.navRef?.openFile(file)
-	}
+	}, [])
+
+	const createTerminal = useCallback(async (_id?: string) => {
+		terminalRef.current?.createTerminal(_id)
+	}, [])
+
+	const openTerminal = useCallback(async (_id: string) => {
+		terminalRef.current?.openTerminal(_id)
+	}, [])
 
 	useEffect(() => {
 		const remove = listenEvent('tree:folder-created', ({ detail: entry }: { detail: FileTreeNomarlizedType }) => {
@@ -241,6 +255,10 @@ export default observer(function CodeEditor() {
 		})
 
 		return remove
+	}, [])
+
+	const handleHiddenTerminal = useCallback(() => {
+		setSizes1(['auto', 0])
 	}, [])
 
 	return (
@@ -259,9 +277,9 @@ export default observer(function CodeEditor() {
 					onDragEnd={handleDragFinished}
 				>
 					<Pane minSize={100} maxSize={320} className="bg-zinc-900 h-full w-full">
-						<div className="bg-zinc-900">
-							<div>
-								<h2 className="text-11 pl-3 pr-2 h-10 items-center flex">PROJECT</h2>
+						<div className="bg-zinc-900 overflow-hidden h-full">
+							<div className="h-full flex flex-col">
+								<h2 className="text-11 pl-3 pr-2 h-10 items-center flex flex-shrink-0">PROJECT</h2>
 								<Accordion
 									className="bg-zinc-700"
 									sticky
@@ -333,20 +351,10 @@ export default observer(function CodeEditor() {
 									open
 									handler={<h6 className="text-11">DEPENDENCIES</h6>}
 									iconPosition="left"
+									containerClassName="flex flex-col flex-1 overflow-hidden"
+									wrapperClassName="flex-1 overflow-hidden"
 								>
-									<div className="py-3 px-4">
-										{packages.map((pkg, i) => (
-											<div key={i} className="py-2 px-3 flex items-center justify-between">
-												<h3 className="text-title text-12 font-normal">{pkg.name}</h3>
-												<p className="text-12">{pkg.version}</p>
-											</div>
-										))}
-										<input
-											type="text"
-											className="w-full bg-zinc-800 px-3 outline-none border border-transparent text-12 h-7 focus:border-blue-500"
-											placeholder="Enter package name"
-										/>
-									</div>
+									<Dependencies openTerminal={openTerminal} createTerminal={createTerminal} />
 								</Accordion>
 							</div>
 						</div>
@@ -370,7 +378,7 @@ export default observer(function CodeEditor() {
 						</Pane>
 						<div className="h-full flex items-center justify-center">
 							<Pane minSize={100} className="bg-zinc-900  h-full w-full">
-								<Terminal />
+								<Terminal ref={terminalRef} handleHidden={handleHiddenTerminal} />
 							</Pane>
 						</div>
 					</SplitPane>

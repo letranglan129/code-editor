@@ -101,3 +101,39 @@ export type FileTreeNomarlizedType = {
 	isPreview?: boolean
 	children?: FileTreeNomarlizedType[]
 }
+
+export type PackageDependencyType = {
+	name: string
+	version: string
+}
+
+export type ResultDependency = {
+	package: {
+		name: string
+		version: string
+		description: string
+		date: string
+		publisher: {
+			username: string
+			email: string
+		}
+		maintainers: [
+			{
+				username: string
+				email: string
+			},
+		]
+		links: {
+			npm: string
+			homepage: string
+			repository: string
+			bugs: string
+		}
+	}
+}
+
+export type ResultDependencies = {
+	objects: ResultDependency[]
+	total: number
+	time: string
+}

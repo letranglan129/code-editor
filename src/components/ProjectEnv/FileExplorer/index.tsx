@@ -124,6 +124,7 @@ export default memo(
 						openByDefault={false}
 					>
 						{({ node, style, tree, dragHandle }) => {
+							if (node.level === 0) node.open()
 							return (
 								<TreeItem
 									node={node}

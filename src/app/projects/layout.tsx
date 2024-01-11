@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import 'overlayscrollbars/overlayscrollbars.css'
 import '@/app/codeEditor.css'
 
 export const metadata: Metadata = {

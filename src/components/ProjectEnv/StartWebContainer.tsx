@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef } from 'react'
 import { useWebContainer } from '../../contexts/WebContainer/hooks'
 import data from '../App/data.json'
 import { convertContainerFiles } from '../../utils/trees'
-import { FileDataType, FileTreeNomarlizedType } from '../../utils/types'
+import { FileDataType, FileTreeNomarlizedType, PackageDependencyType } from '../../utils/types'
 import webContainerService from '../../services/WebContainerService'
 import { useProjectCodeStore } from '../../store/codeEditor/projects'
 import projectService from '../../services/ProjectSerivce'
@@ -12,6 +12,7 @@ import { listenEvent, sendEvent } from '../../utils/events'
 import { FSWatchOptions, IFSWatcher } from '@webcontainer/api'
 import { observer } from 'mobx-react-lite'
 import { toJS } from 'mobx'
+import axios from 'axios'
 
 const StartWebContainer = memo<{
 	onFileCreated: (file: FileDataType, focusEditor?: boolean) => void
@@ -19,8 +20,16 @@ const StartWebContainer = memo<{
 }>(
 	observer(function StartWebContainer({ onFileCreated, onFileDeleted }) {
 		const { boot, webContainer } = useWebContainer()
-		const { treeFiles, project, addEntry, addTreeFile, deleteTreeFile, deleteEntry, containerTreeFiles } =
-			useProjectCodeStore()
+		const {
+			treeFiles,
+			project,
+			addEntry,
+			addTreeFile,
+			deleteTreeFile,
+			deleteEntry,
+			containerTreeFiles,
+			addPackageDependency,
+		} = useProjectCodeStore()
 		const watchers = useRef<IFSWatcher[]>([])
 
 		// Boot the web container
@@ -39,7 +48,7 @@ const StartWebContainer = memo<{
 
 			const start = async () => {
 				await webContainer.mount(containerTreeFiles)
-				await webContainerService.startShell()
+				await webContainerService.startShell('terminal')
 			}
 			start()
 		}, [webContainer, containerTreeFiles])
@@ -53,15 +62,32 @@ const StartWebContainer = memo<{
 				const scripts = packageJsonParsed.scripts ?? {}
 
 				if (scripts.start) {
-					webContainerService.writeCommand(`npm install --legacy-peer-deps && npm start\n`)
+					webContainerService.writeCommand(`npm install --legacy-peer-deps && npm start\n`, 'terminal')
 				} else if (scripts.dev) {
-					webContainerService.writeCommand(`npm install --legacy-peer-deps && npm run dev\n`)
+					webContainerService.writeCommand(`npm install --legacy-peer-deps && npm run dev\n`, 'terminal')
 				} else {
-					webContainerService.writeCommand(`npm install --legacy-peer-deps\n`)
+					webContainerService.writeCommand(`npm install --legacy-peer-deps\n`, 'terminal')
 				}
 				sendEvent('terminal-fit')
 			})
 			return remove
+		}, [])
+
+		useEffect(() => {
+			const packageJson = projectService.getEntryFromPath('package.json')
+			if (!packageJson) return
+
+			const packageJsonContent = packageJson.model?.getValue() ?? ''
+			const packageJsonParsed = JSON.parse(packageJsonContent)
+
+			const dependencies = packageJsonParsed.dependencies ?? {}
+			const devDependencies = packageJsonParsed.devDependencies ?? {}
+			const allDependencies = Object.entries({ ...dependencies, ...devDependencies }).map(([name, version]) => ({
+				name,
+				version,
+			})) as PackageDependencyType[]
+
+			addPackageDependency(allDependencies)
 		}, [])
 
 		// Sync files from container
