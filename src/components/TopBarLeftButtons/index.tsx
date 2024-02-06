@@ -1,7 +1,7 @@
 import { mdiPlus } from '@mdi/js'
 import Icon from '@mdi/react'
 import { observer } from 'mobx-react-lite'
-import { useBlockManagerStore } from '../../store/builder/blockManager'
+import { useBlockManagerStore } from '../../store/blockManager'
 import cx from '../../utils/makeCls'
 import Button from '../Button'
 import Grid from '../Grid'

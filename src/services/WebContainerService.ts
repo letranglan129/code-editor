@@ -1,10 +1,11 @@
 'use client'
 
 // import { listenEvent, sendEvent } from '@/utils/events'
-import { FSWatchOptions, WebContainer, WebContainerProcess } from '@webcontainer/api'
+import { FSWatchOptions, WebContainer, WebContainerProcess, BufferEncoding } from '@webcontainer/api'
 import debounce from 'lodash.debounce'
 import { Terminal } from 'xterm'
 import { listenEvent, sendEvent } from '../utils/events'
+import { Port } from '../utils/types'
 
 export type TerminalIdentify = {
 	id: string
@@ -34,10 +35,38 @@ class WebContainerService {
 	_firstTimes: FirstTimeType[] = []
 	_listener?: () => any
 	_activeTerm: string = ''
+	_portActive: Port | null = null
+	_ports: Port[] = []
 
 	constructor() {
 		this._activeTerm = 'terminal'
 		this.createListener()
+	}
+
+	setPortActive(port: Port) {
+		this._portActive = port
+		sendEvent('web-container:active-port', port)
+	}
+
+	getPortActive() {
+		return this._portActive
+	}
+
+	addPort(port: Port) {
+		this._ports = this._ports.filter(p => p.port !== port.port)
+		this._ports.push(port)
+		sendEvent('web-container:add-port')
+	}
+
+	removePort(port: number) {
+		this._ports = this._ports.filter(p => p.port !== port)
+		sendEvent('web-container:remove-port')
+		const portActive = this._ports.slice(-1)[0]
+		portActive && this.setPortActive(portActive || { port: 0, url: '' })
+	}
+
+	getPorts() {
+		return this._ports
 	}
 
 	removeListener() {
@@ -50,7 +79,6 @@ class WebContainerService {
 				if (!shellProcess.p) return
 
 				const term = this._terminals.find(t => t.id === shellProcess.id)
-				console.log(term?.id)
 				term &&
 					shellProcess.p.resize({
 						cols: term.t.cols,
@@ -66,6 +94,9 @@ class WebContainerService {
 
 	addTerminal(terminal: Terminal, id: string, firstTime: boolean = false) {
 		this.removeListener()
+		if (this._terminals.find(t => t.id === id)) {
+			this.removeTerminal(id)
+		}
 		this._terminals.push({
 			t: terminal,
 			id,
@@ -110,9 +141,9 @@ class WebContainerService {
 		return this._webContainer.fs.watch(filePath, callback)
 	}
 
-	async readFile(filePath: string) {
+	async readFile(filePath: string, encoding: BufferEncoding = 'utf-8') {
 		if (!this._webContainer) return
-		const content = await this._webContainer.fs.readFile(filePath, 'utf-8')
+		const content = await this._webContainer.fs.readFile(filePath, encoding)
 		return content
 	}
 
@@ -139,7 +170,6 @@ class WebContainerService {
 		if (this._shellProcesses[shellProcessIndex]?.p) return
 		if (!term) return
 
-		console.log(idTerm)
 		this._shellProcesses[shellProcessIndex].p = await this._webContainer?.spawn('jsh', {
 			terminal: {
 				cols: term.t.cols,

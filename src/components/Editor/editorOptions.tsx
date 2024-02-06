@@ -8,7 +8,7 @@ import { ProjectType } from '../../utils/types'
 import localeEn from '../../locale/en'
 import { parseGradient } from '../GradientPicker'
 import { BackgroundType, PROPERTY_BG_IMAGE, PROPERTY_BG_TYPE, PROPERTY_IMAGE } from '../StyleManager/SectorBackground'
-import { getStore } from '../../store/builder'
+import { getStore } from '../../store'
 
 const unitsPercent = ['%']
 
@@ -31,7 +31,7 @@ const fromStyleFnStack = (property: string) => {
 					const { name, value } = functionName(input)
 					const values = { [nameProp]: name, [valueProp]: value }
 					return values
-			  })
+				})
 			: []
 	}
 }
@@ -122,7 +122,7 @@ const getFilterProp = (property = 'filter') => {
 						const { name, value } = functionName(input)
 						const values = { [nameProp]: name, [valueProp]: value }
 						return values
-				  })
+					})
 				: []
 		},
 		toStyle(values: Record<string, string>, { name }: any) {
@@ -200,6 +200,7 @@ export function getEditorOptions(projectType: ProjectType) {
 		undoManager: { trackSelection: false },
 		showOffsets: true,
 		cssIcons: '',
+		allowScripts: 1,
 		assetManager: {
 			/*
           assets: [
@@ -235,6 +236,7 @@ export function getEditorOptions(projectType: ProjectType) {
           ],
           */
 		},
+
 		blockManager: {},
 		styleManager: {
 			sectors: [
@@ -733,7 +735,7 @@ export function getEditorOptions(projectType: ProjectType) {
 												'box-shadow-color': color,
 												'box-shadow-type': inset ? 'inset' : '',
 											}
-									  })
+										})
 									: []
 								return result
 							},
@@ -751,7 +753,7 @@ export function getEditorOptions(projectType: ProjectType) {
 												'text-shadow-blur': blur,
 												'text-shadow-color': color,
 											}
-									  })
+										})
 									: []
 								return result
 							},
@@ -933,7 +935,7 @@ export function getEditorOptions(projectType: ProjectType) {
 				hover: true,
 				spacing: true,
 				target: true,
-				// resize: true,
+				resize: true,
 			},
 		},
 	}

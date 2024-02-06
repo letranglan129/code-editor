@@ -1,5 +1,5 @@
 import type { Component, Editor, ObjectAny } from 'grapesjs'
-import { getStore } from '../../store/builder'
+import { getStore } from '../../store'
 import blockIconsToComponent from './blockIconsToComponent'
 import fillEmptyComponents from './fillEmptyComponents'
 import debounce from '../../utils/debounce'

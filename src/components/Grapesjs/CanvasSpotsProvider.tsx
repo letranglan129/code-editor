@@ -27,7 +27,6 @@ export default memo(function CanvasSpotsProvider({ children }: CanvasSpotsProvid
 		const event = 'canvas:spot'
 		const toListen = () => {
 			const spotsRes: CanvasSpot[] = editor.Canvas.getSpots()
-			// console.log('CanvasSpotsProvider canvas:spot', spotsRes.map(s => s.id));
 			setSpots(spotsRes)
 		}
 

@@ -1,6 +1,6 @@
 import { mdiClose, mdiPlus } from '@mdi/js'
 import Icon from '@mdi/react'
-import { useI18nStore } from '../../store/builder/I18nStore'
+import { useI18nStore } from '../../store/I18nStore'
 import cx from '../../utils/makeCls'
 import ButtonWithTooltip, { ButtonWithTooltipProps } from '../Button/ButtonWithTooltip'
 import Grid, { GridProps } from '../Grid'

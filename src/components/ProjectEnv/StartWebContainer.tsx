@@ -1,18 +1,17 @@
-import React, { memo, useEffect, useRef } from 'react'
-import { useWebContainer } from '../../contexts/WebContainer/hooks'
-import data from '../App/data.json'
-import { convertContainerFiles } from '../../utils/trees'
-import { FileDataType, FileTreeNomarlizedType, PackageDependencyType } from '../../utils/types'
-import webContainerService from '../../services/WebContainerService'
-import { useProjectCodeStore } from '../../store/codeEditor/projects'
-import projectService from '../../services/ProjectSerivce'
-import { uuidv4 } from '../../utils/strings'
-import { monaco } from 'react-monaco-editor'
-import { listenEvent, sendEvent } from '../../utils/events'
-import { FSWatchOptions, IFSWatcher } from '@webcontainer/api'
+import { FSWatchOptions, IFSWatcher, BufferEncoding } from '@webcontainer/api'
 import { observer } from 'mobx-react-lite'
-import { toJS } from 'mobx'
-import axios from 'axios'
+import { memo, useEffect, useRef } from 'react'
+import { monaco } from 'react-monaco-editor'
+import { useWebContainer } from '../../contexts/WebContainer/hooks'
+import projectService from '../../services/ProjectSerivce'
+import webContainerService from '../../services/WebContainerService'
+import { useProjectCodeStore } from '../../store/projects'
+import { listenEvent, sendEvent } from '../../utils/events'
+import { isMediaFile, uuidv4 } from '../../utils/strings'
+import { FileDataType, FileTreeNomarlizedType, PackageDependencyType } from '../../utils/types'
+import { IMAGE_EXTENSIONS } from '../../utils/constant'
+
+let isFirst = true
 
 const StartWebContainer = memo<{
 	onFileCreated: (file: FileDataType, focusEditor?: boolean) => void
@@ -34,7 +33,9 @@ const StartWebContainer = memo<{
 
 		// Boot the web container
 		useEffect(() => {
+			if (!isFirst) return
 			boot?.()
+			isFirst = false
 		}, [boot])
 
 		useEffect(() => {
@@ -55,25 +56,16 @@ const StartWebContainer = memo<{
 
 		useEffect(() => {
 			const remove = listenEvent('terminal:ready', () => {
-				const packageJson = projectService.getEntryFromPath('package.json')
-				if (!packageJson) return
-				const packageJsonContent = packageJson.model?.getValue() ?? ''
-				const packageJsonParsed = JSON.parse(packageJsonContent)
-				const scripts = packageJsonParsed.scripts ?? {}
+				project?.cmdStartup && webContainerService.writeCommand(`${project.cmdStartup}\n`, 'terminal')
 
-				if (scripts.start) {
-					webContainerService.writeCommand(`npm install --legacy-peer-deps && npm start\n`, 'terminal')
-				} else if (scripts.dev) {
-					webContainerService.writeCommand(`npm install --legacy-peer-deps && npm run dev\n`, 'terminal')
-				} else {
-					webContainerService.writeCommand(`npm install --legacy-peer-deps\n`, 'terminal')
-				}
-				sendEvent('terminal-fit')
+				setTimeout(() => {
+					sendEvent('terminal-fit')
+				}, 1000)
 			})
 			return remove
-		}, [])
+		}, [project])
 
-		useEffect(() => {
+		const updateDependencies = async () => {
 			const packageJson = projectService.getEntryFromPath('package.json')
 			if (!packageJson) return
 
@@ -88,6 +80,17 @@ const StartWebContainer = memo<{
 			})) as PackageDependencyType[]
 
 			addPackageDependency(allDependencies)
+		}
+
+		useEffect(() => {
+			updateDependencies()
+		}, [])
+
+		// Update dependencies when package.json changed
+		useEffect(() => {
+			const remove = listenEvent('dependencies:updated', updateDependencies)
+
+			return remove
 		}, [])
 
 		// Sync files from container
@@ -96,10 +99,12 @@ const StartWebContainer = memo<{
 
 			const syncFromContainer = async (filePath: string, type = 'file') => {
 				const isFile = type === 'file'
-				try {
-					const newContent = isFile ? (await webContainerService.readFile(filePath)) ?? '' : null
-					const entry = projectService.getEntryFromPath(filePath)
 
+				try {
+					let encoding: BufferEncoding = 'utf-8'
+
+					const newContent = isFile ? (await webContainerService.readFile(filePath, encoding)) ?? '' : null
+					const entry = projectService.getEntryFromPath(filePath)
 					// If file exists
 					if (entry) {
 						// Only update if content is different
@@ -114,10 +119,10 @@ const StartWebContainer = memo<{
 						const fileName = filePath.split('/').pop()
 						const parentPath = filePath.split('/').slice(0, -1).join('/') // Remove file name
 						const parentEntry = projectService.getEntryFromPath(parentPath)
-
+						if (!fileName) return
 						const newEntry: FileDataType = {
 							id: uuidv4(),
-							project_id: project?.id || 0,
+							project_id: project?.project_id || 0,
 							parent_id: isRoot ? treeFiles?.[0].id : parentEntry.id,
 							name: fileName || '',
 							path: filePath,
@@ -125,6 +130,7 @@ const StartWebContainer = memo<{
 							content: newContent,
 							isNew: true,
 						}
+
 						const newTreeFile: FileTreeNomarlizedType = {
 							id: newEntry.id,
 						}
@@ -146,12 +152,12 @@ const StartWebContainer = memo<{
 							data: newTreeFile,
 						})
 
-						if (isFile) {
+						if (isFile && newEntry.name.toLowerCase().includes('dockerfile')) {
 							requestIdleCallback(() => {
 								onFileCreated(newEntry, true) // true is auto focus editor
 							})
 						} else {
-							sendEvent('tree:folder-created', newEntry)
+							// sendEvent('tree:folder-created', newEntry)
 						}
 					}
 				} catch (error: any) {
@@ -176,36 +182,44 @@ const StartWebContainer = memo<{
 
 			// Watch file change and update editor
 			const handle = (path: string) => async (event: string, fileName: string) => {
-				const filePath = path + fileName
+				setTimeout(async () => {
+					const filePath = path + fileName
 
-				// Ignore node_modules
-				if (filePath.includes('node_modules')) return
+					// Ignore node_modules
+					if (filePath.includes('node_modules') || filePath.includes('.nuxt') || filePath.includes('.next'))
+						return
 
-				try {
-					const childrens = await webContainerService.getWebContainer().fs.readdir(filePath)
+					try {
+						const childrens = await webContainerService.getWebContainer().fs.readdir(filePath)
 
-					await syncFromContainer(filePath, 'folter')
+						await syncFromContainer(filePath, 'folder')
 
-					// If file is folder, sync all files inside
-					if (childrens.length) {
-						for (const child of childrens) {
-							await handle(filePath + '/')(event, child)
+						// If file is folder, sync all files inside
+						if (childrens.length) {
+							for (const child of childrens) {
+								await handle(filePath + '/')(event, child)
+							}
+						}
+					} catch (error: any) {
+						const errorString = error.toString()
+
+						// Watch file change and update editor
+						if (errorString.includes('ENOTDIR')) {
+							await syncFromContainer(filePath)
+						}
+						// Watch file delete and update editor
+						else if (errorString.includes('ENOENT')) {
+							await syncFromContainer(filePath)
+						} else {
+							console.log(errorString)
+						}
+
+						// Update dependencies when package.json changed
+						if (fileName === 'package.json') {
+							sendEvent('dependencies:updated')
 						}
 					}
-				} catch (error: any) {
-					const errorString = error.toString()
-
-					// Watch file change and update editor
-					if (errorString.includes('ENOTDIR')) {
-						await syncFromContainer(filePath)
-					}
-					// Watch file delete and update editor
-					else if (errorString.includes('ENOENT')) {
-						await syncFromContainer(filePath)
-					} else {
-						console.log(error)
-					}
-				}
+				}, 1000)
 			}
 
 			const _watchers = watchers.current

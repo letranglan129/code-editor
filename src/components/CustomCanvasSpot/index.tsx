@@ -4,7 +4,7 @@ import CanvasSpotHover from './CanvasSpotHover'
 import CanvasSpotSelect from './CanvasSpotSelect'
 import CanvasSpotSpacing from './CanvasSpotSpacing'
 import CanvasSpotTarget from './CanvasSpotTarget'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
 
 export interface CustomCanvasSpotProps extends React.HTMLProps<HTMLDivElement> {
 	spot: CanvasSpot

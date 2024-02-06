@@ -1,10 +1,13 @@
-import { memo, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { getVSIFileIcon } from 'file-extension-icon-js'
-import { ContextMenu, ContextMenuItem, ContextMenuTrigger } from 'rctx-contextmenu'
-import { useProjectCodeStore } from '../../../../store/codeEditor/projects'
+import { useProjectCodeStore } from '../../../../store/projects'
 import { FaCircle, FaXmark } from 'react-icons/fa6'
 import { observer } from 'mobx-react-lite'
 import { FileTreeNomarlizedType } from '../../../../utils/types'
+import { toJS } from 'mobx'
+import { ContextMenuMemo } from '../../FileExplorer/Tree/TreeItem'
+import { ItemInfo } from 'devextreme/events'
+import { dxContextMenuItem } from 'devextreme/ui/context_menu'
 
 type NavigationItemProps = {
 	active: boolean
@@ -13,8 +16,8 @@ type NavigationItemProps = {
 	onMouseDown: (data: FileTreeNomarlizedType) => void
 	onDoubleClick: (data: any) => void
 	onClose: (data: any) => void
-	// onCloseOthers: (data: any) => void
-	// onCloseAll: () => void
+	onCloseOthers: (data: any) => void
+	onCloseAll: () => void
 }
 
 const NavigationItem = memo(
@@ -25,12 +28,13 @@ const NavigationItem = memo(
 		onMouseDown,
 		onDoubleClick,
 		onClose,
-		// onCloseOthers,
-		// onCloseAll,
+		onCloseOthers,
+		onCloseAll,
 	}) {
 		const ref = useRef<HTMLLIElement>(null)
 		const { fileEntries } = useProjectCodeStore()
 		const file = fileEntries?.[data.id]
+		const [renderContextMenu, setRenderContextMenu] = useState<boolean>(false)
 
 		useEffect(() => {
 			// Scroll to active tab
@@ -39,16 +43,42 @@ const NavigationItem = memo(
 			}
 		}, [active])
 
+		useEffect(() => {
+			const element = document.getElementById(`navigation-${file.id}`)
+			if (element) setRenderContextMenu(true)
+		}, [])
+
+		const contextMenuClick = useCallback((e: ItemInfo<dxContextMenuItem>) => {
+			if (!e.itemData?.items) {
+				switch (e.itemData?.text) {
+					case 'Close':
+						onClose(data)
+						break
+					case 'Close All':
+						onCloseAll()
+						break
+					case 'Close Others':
+						onCloseOthers(data)
+						break
+
+					default:
+						break
+				}
+			}
+		}, [])
+
 		if (!file) return null
 
-		const uniqueId = `tab-context-menu-${file.id}`
-		console.log(active)
-
 		return (
-			<li ref={ref} className={`relative flex-shrink-0 parent show ${active ? 'bg-editor' : 'bg-[#26292e]'}`}>
-				<ContextMenuTrigger id={uniqueId} className="h-full">
+			<li
+				ref={ref}
+				id={`navigation-${file.id}`}
+				className={`parent show relative flex-shrink-0 ${active ? 'bg-editor' : 'bg-[#26292e]'}`}
+			>
+				{/* <ContextMenuTrigger id={uniqueId} className="h-full"> */}
+				<div className="h-full">
 					<button
-						className={`inline-flex items-center gap-2 min-w-110 h-38 py-0 pr-8 pl-2 text-13 cursor-pointer whitespace-nowrap select-none h-full text-white ${
+						className={`min-w-110 h-38 inline-flex h-full cursor-pointer select-none items-center gap-2 whitespace-nowrap py-0 pl-2 pr-8 text-13 text-white ${
 							isPreview ? 'italic' : ''
 						}`}
 						onMouseDown={e => {
@@ -61,20 +91,26 @@ const NavigationItem = memo(
 						<img className="w-4" src={getVSIFileIcon(file.name)} alt={file.name} />
 						{file.name}
 						<span
-							className={`absolute top-1/2 right-1 -translate-y-1/2 items-center justify-center p-1 rounded  hover:bg-neutral-800`}
+							className={`absolute right-1 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded p-1 hover:bg-neutral-800`}
 							onMouseDown={e => e.stopPropagation()}
 							onClick={() => onClose(data)}
 						>
-							<FaCircle className="hidden" />
+							<FaCircle className={`unchild h-2 w-2 ${file.isChanged ? 'block' : '!hidden'}`} />
 							<FaXmark className="child" />
 						</span>
 					</button>
-				</ContextMenuTrigger>
-				<ContextMenu id={uniqueId} className="min-w-48">
-					{/* <ContextMenuItem onClick={() => onClose(data)}>Close</ContextMenuItem> */}
-					{/* <ContextMenuItem onClick={() => onCloseOthers(data)}>Close Others</ContextMenuItem> */}
-					{/* <ContextMenuItem onClick={onCloseAll}>Close All</ContextMenuItem> */}
-				</ContextMenu>
+				</div>
+				{renderContextMenu && (
+					<ContextMenuMemo
+						target={document.getElementById(`navigation-${file.id}`)}
+						contextMenuClick={contextMenuClick}
+						dataSource={[
+							{ text: 'Close' },
+							{ text: 'Close Others' },
+							{ text: 'Close All' },
+						]}
+					/>
+				)}
 			</li>
 		)
 	}),

@@ -29,7 +29,7 @@ type TerminalProps = {
 	handleHidden: () => void
 }
 
-export type TerminalRefType = {
+export type TerminalRef = {
 	createTerminal: (id?: string) => void
 	closeTerminal: (id: string) => void
 	openTerminal: (id: string) => void
@@ -37,13 +37,14 @@ export type TerminalRefType = {
 
 const Terminal = memo(
 	observer(
-		forwardRef(function Terminal({ handleHidden }: TerminalProps, ref: ForwardedRef<TerminalRefType>) {
+		forwardRef(function Terminal({ handleHidden }: TerminalProps, ref: ForwardedRef<TerminalRef>) {
 			const terminalElRef = useRef<HTMLDivElement>(null)
 			const [terminals, setTerminals] = useState<TerminalListenerAddonIdentifyType[]>([])
 			const [activeTermId, setActiveTermId] = useState<string>('terminal')
-
+			
 			useEffect(() => {
 				if (!terminalElRef.current) return
+				terminalElRef.current.innerHTML = ''
 
 				const terminal = new XTermTerminal({
 					convertEol: true,
@@ -59,7 +60,7 @@ const Terminal = memo(
 				terminal.open(terminalElRef.current)
 				fitAddon.fit()
 
-				setTerminals(prev => [...prev, { id: 'terminal', t: terminal, func: remove, fitAddon }])
+				setTerminals(prev => [...prev.filter(t => t.id !== 'terminal'), { id: 'terminal', t: terminal, func: () => {}, fitAddon }])
 				setActiveTermId('terminal')
 
 				const remove = listenEvent('terminal-fit', () => fitAddon.fit())

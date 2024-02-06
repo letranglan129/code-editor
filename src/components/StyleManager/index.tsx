@@ -42,7 +42,7 @@ export const getButtonsProps = (prop: PropertySelect, labelOpts: LabelOptions = 
 	}
 }
 
-export const getStackProps = (prop: PropertyStack, newLayer = {}) => {
+export function getStackProps(prop: PropertyStack, newLayer = {}): any {
 	return {
 		title: prop.getLabel(),
 		titleAdd: `Add new ${prop.getLabel()}`,
@@ -54,7 +54,7 @@ export const getStackProps = (prop: PropertyStack, newLayer = {}) => {
 		remove: (layer: any) => prop.removeLayer(layer),
 		move: (layer: any, index = 0) => prop.moveLayer(layer, index),
 		label: <PropertyLabel property={prop} />,
-	}
+	};
 }
 
 export const getNumberProps = (prop: PropertyNumber) => {

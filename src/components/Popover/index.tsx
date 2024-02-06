@@ -47,8 +47,8 @@ export default function Popover({
 	className,
 	...props
 }: PopoverProps) {
-	const refBtn = useRef(null)
-	const refPanel = useRef(null)
+	const refBtn = useRef<HTMLElement>(null)
+	const refPanel = useRef<HTMLDivElement>(null)
 	const [open, setOpen] = useState(!!isOpen)
 	const [posit, setPos] = useState({ top: 0, left: 0 })
 
@@ -73,6 +73,13 @@ export default function Popover({
 			if (open) {
 				const updatePos = () => setPos(calculatePosition(refBtnEl, refPanelEl, pos))
 				setTimeout(updatePos)
+
+				window.addEventListener('scroll', updatePos)
+				window.addEventListener('resize', updatePos)
+				return () => {
+					window.removeEventListener('scroll', updatePos)
+					window.removeEventListener('resize', updatePos)
+				}
 			}
 		}
 	}, [refBtn, refPanel, open]) // eslint-disable-line
@@ -96,7 +103,7 @@ export default function Popover({
 			>
 				<PO.Panel
 					className={cx([
-						'fixed z-20',
+						'fixed z-50',
 						topIcon && 'mt-5',
 						size === 's' && 'w-full max-w-[240px]',
 						size === 'sm' && 'w-full max-w-sm',

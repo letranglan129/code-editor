@@ -1,6 +1,6 @@
 import { SelectorsProvider, StylesProvider, TraitsProvider } from '@grapesjs/react'
 import { observer } from 'mobx-react-lite'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
 import cx from '../../utils/makeCls'
 // import AdsBanner from '../AdsBanner'
 import Grid from '../Grid'

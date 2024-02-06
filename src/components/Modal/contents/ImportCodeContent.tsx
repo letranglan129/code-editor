@@ -1,12 +1,12 @@
 import { observer } from 'mobx-react-lite'
 import Grid from '../../Grid'
 import GridItem from '../../GridItem'
-import { useAppEditorStore } from '../../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../../store/appEditorStore'
 import CodeField from '../../CodeField'
 import { useState } from 'react'
 import Button from '../../Button'
-import { useI18nStore } from '../../../store/builder/I18nStore'
-import { useModalStore } from '../../../store/builder/modalStore'
+import { useI18nStore } from '../../../store/I18nStore'
+import { useModalStore } from '../../../store/modalStore'
 
 export default observer(function ImportCodeContent() {
 	const modalStore = useModalStore()

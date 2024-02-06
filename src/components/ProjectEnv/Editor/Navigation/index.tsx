@@ -1,19 +1,21 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { FileTreeNomarlizedType } from '../../../../utils/types'
-import NavigationItem from './NavigationItem'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { ReactSortable } from 'react-sortablejs'
 import editorService from '../../../../services/EditorService'
 import projectService from '../../../../services/ProjectSerivce'
-import * as monacoHelpers from '../../../../utils/monacoHelpers'
 import { sendEvent } from '../../../../utils/events'
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
+import { FileTreeNomarlizedType } from '../../../../utils/types'
+import Scrollbar from '../../../Scrollbar'
+import NavigationItem from './NavigationItem'
+import { IMAGE_EXTENSIONS } from '../../../../utils/constant'
+import { isMediaFile } from '../../../../utils/strings'
 
-export type EditorRefType = {
+export type EditorRef = {
 	openFile: (file: FileTreeNomarlizedType) => void
 	previewFile: ({ file, focusEditor }: { file: FileTreeNomarlizedType; focusEditor: boolean }) => void
 	closeFile(file: FileTreeNomarlizedType): void
 }
 
-export default forwardRef<EditorRefType>(function Navigation({}, ref) {
+export default forwardRef<EditorRef>(function Navigation({}, ref) {
 	const [tabs, setTabs] = useState<FileTreeNomarlizedType[]>([])
 	const [currentTab, setCurrentTab] = useState<FileTreeNomarlizedType>()
 	const autoFocusEditor = useRef<boolean>(false)
@@ -84,6 +86,7 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 						setCurrentTab(lastTab)
 					} else {
 						editorService?.getEditor()?.setModel(null)
+						sendEvent('updateLanguage')
 						editorService.setCurrentFile(null)
 					}
 				}
@@ -109,6 +112,7 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 
 				lastFile?.model && editorService.getEditor()?.setModel(lastFile.model)
 				editorService.setCurrentFile(lastFile)
+				sendEvent('updateLanguage')
 			})
 		}
 	}, [])
@@ -129,24 +133,6 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 		[handleOpen, handlePreview, handleClose],
 	)
 
-	useEffect(() => {
-		if (!currentTab) return
-		const file = projectService.getEntryFromId(currentTab.id)
-
-		if (!file) return
-
-		const listener = monacoHelpers.receiveFromJSXWorker({
-			id: file.path,
-			getModel: () => file.model,
-		})
-
-		// Send code to JSX worker
-		const payload = monacoHelpers.createJSXWorkerPayload(file.path, file)
-		monacoHelpers.sendToJSXWorker(payload)
-
-		return () => listener.removeListener()
-	}, [currentTab])
-
 	// Handle tab change
 	useEffect(() => {
 		if (!currentTab) return
@@ -157,7 +143,15 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 		if (!file || !file?.model) return
 
 		editorService.setCurrentFile(file)
+
+		if (isMediaFile(file.name)) {
+			sendEvent('openImageEditor')
+			return
+		}
+
+		sendEvent('closeImageEditor')
 		editorService.getEditor()?.setModel(file.model)
+		sendEvent('updateLanguage')
 
 		// Restore viewState
 		if (_viewState[file.id]) {
@@ -177,22 +171,32 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 		}
 	}, [currentTab])
 
+	// Handle close all tabs
+	const handleCloseAll = useCallback(() => {
+		setTabs([])
+		editorService.getEditor()?.setModel(null)
+		sendEvent('updateLanguage')
+		editorService.setCurrentFile(null)
+	}, [])
+
+	// Handle close others tabs
+	const handleCloseOthers = useCallback((tab: FileTreeNomarlizedType) => {
+		setTabs([tab])
+	}, [])
+
 	useEffect(() => {
 		if (!currentTab) return
 		sendEvent('tree:file-change', currentTab)
 	}, [currentTab])
 
 	return (
-		<OverlayScrollbarsComponent
-			options={{
-				scrollbars: {
-					autoHide: 'leave',
-				},
-			}}
-			className="flex-shrink-0 navigation-scrollbar"
-			defer
-		>
-			<ul className="flex marker:not-sr-only h-[40px] bg-[#202327] flex-shrink-0">
+		<Scrollbar className="!h-[40px]">
+			<ReactSortable
+				tag="ul"
+				className="flex h-[40px] flex-shrink-0 bg-[#202327] marker:not-sr-only"
+				list={tabs}
+				setList={setTabs}
+			>
 				{tabs.map(tab => (
 					<NavigationItem
 						data={tab}
@@ -202,11 +206,11 @@ export default forwardRef<EditorRefType>(function Navigation({}, ref) {
 						onMouseDown={handleSwitchTab}
 						onDoubleClick={handleOpen}
 						onClose={handleClose}
-						// onCloseOthers={handleCloseOthers}
-						// onCloseAll={handleCloseAll}
+						onCloseOthers={handleCloseOthers}
+						onCloseAll={handleCloseAll}
 					/>
 				))}
-			</ul>
-		</OverlayScrollbarsComponent>
+			</ReactSortable>
+		</Scrollbar>
 	)
 })

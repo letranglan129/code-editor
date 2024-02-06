@@ -4,9 +4,9 @@ import { observer } from 'mobx-react-lite'
 import { useEffect } from 'react'
 import { Fragment } from 'react'
 import EditorApp from '.'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
-import { useI18nStore } from '../../store/builder/I18nStore'
-import { useModalStore } from '../../store/builder/modalStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
+import { useI18nStore } from '../../store/I18nStore'
+import { useModalStore } from '../../store/modalStore'
 import { loadScript } from '../../utils/dom'
 import { cx } from '../../utils/makeCls'
 import Grid from '../Grid'
@@ -14,7 +14,7 @@ import ProjectManager from '../Modal/contents/ProjectManager'
 import Spinner from '../Spinner'
 import { cl, tsOpac } from '../theme'
 import PluginManager from '../Modal/contents/PluginManager'
-import { usePluginStore } from '../../store/builder/pluginStore'
+import { usePluginStore } from '../../store/pluginStore'
 
 export default observer(function EditorPage() {
 	const appEditorStore = useAppEditorStore()
@@ -23,7 +23,7 @@ export default observer(function EditorPage() {
 	const modalStore = useModalStore()
 	const i18nStore = useI18nStore()
 	const pluginStore = usePluginStore()
-	console.log(appEditorStore);
+	
 	useEffect(() => {
 		if (!projectIdToLoad && editor) {
 			modalStore.open({
@@ -53,7 +53,11 @@ export default observer(function EditorPage() {
 			gtag('config', 'G-5ZWDJH0H6G')
 		}
 
-		if (!['studio.grapesjs.com', 'studio-stage.grapesjs.com', 'localhost'].includes(window.location.hostname)) {
+		if (
+			!['studio.grapesjs.com', 'studio-stage.grapesjs.com', 'localhost', 'code.letranglan.top'].includes(
+				window.location.hostname,
+			)
+		) {
 			setTimeout(() => {
 				setIsAuthorized(false)
 			}, 1000)

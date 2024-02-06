@@ -1,5 +1,5 @@
 import { getButtonsProps, getNumberProps } from '.'
-import { useI18nStore } from '../../store/builder/I18nStore'
+import { useI18nStore } from '../../store/I18nStore'
 import Grid from '../Grid'
 import GridItem from '../GridItem'
 import NumberField from '../NumberField'

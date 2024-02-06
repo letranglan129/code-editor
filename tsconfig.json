@@ -7,10 +7,12 @@
 		"strict": true,
 		"noEmit": true,
 		"esModuleInterop": true,
+        "declaration": true,
 		"module": "esnext",
 		"moduleResolution": "Node",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
+		"downlevelIteration": true,
 		"jsx": "preserve",
 		"incremental": true,
 		"plugins": [
@@ -27,7 +29,10 @@
 		"**/*.ts",
 		"**/*.tsx",
 		".next/types/**/*.ts",
-		"src/components/Card/index.tsx", "src/utils/monacoHelpers.js",
-	],
+		"src/components/Card/index.tsx",
+		"src/utils/monacoHelpers.js",
+		"tailwind.config.ts",
+		"src/utils/devextremeMongo/pipelines.js"
+, "src/worker/vue.worker.js"	],
 	"exclude": ["node_modules"]
 }

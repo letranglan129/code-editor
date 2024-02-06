@@ -1,6 +1,6 @@
 import Button, { ButtonProps } from '../Button'
 import { observer } from 'mobx-react-lite'
-import { useI18nStore } from '../../store/builder/I18nStore'
+import { useI18nStore } from '../../store/I18nStore'
 import { useRef } from 'react'
 
 export interface UploadFieldProps extends Omit<ButtonProps, 'onChange'> {

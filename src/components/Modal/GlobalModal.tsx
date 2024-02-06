@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React from 'react'
-import { useModalStore } from '../../store/builder/modalStore'
+import { useModalStore } from '../../store/modalStore'
 import { isFunction } from '../../utils'
 import Modal from '../Modal'
 

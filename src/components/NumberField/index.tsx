@@ -138,10 +138,18 @@ export default function NumberField({
 
 	return (
 		<div className={cx(className)}>
-			{panOverlay && <div className="fixed inset-0 z-50 cursor-ns" />}
+			{panOverlay && <div className="cursor-ns fixed inset-0 z-50" />}
 			{!!label && <LabelField size={size}>{label}</LabelField>}
 			<Grid
-				className={cx(cl.bg, cl.br, br.b, br.rnd, size === 'm' && pad.xy, size === 's' && 'px-3 py-1')}
+				className={cx(
+					cl.bg,
+					cl.br,
+					br.b,
+					br.rnd,
+					size === 'm' && pad.xy,
+					size === 's' && 'px-3 py-1',
+					'focus-within:border-sky-600',
+				)}
 				items="center"
 				space="x2s"
 			>
@@ -149,10 +157,10 @@ export default function NumberField({
 					<GridItem
 						onMouseDown={onLabelMouseDown}
 						className={cx(
-							'opacity-50 cursor-ns',
+							'cursor-ns opacity-50',
 							size === 'm' && '-ml-3',
 							size === 's' && '-ml-2',
-							pan !== true && 'mr-0.5 -ml-1',
+							pan !== true && '-ml-1 mr-0.5',
 						)}
 					>
 						{pan === true ? <Icon path={mdiPanVertical} size={icon.s2x} /> : pan}
@@ -169,7 +177,7 @@ export default function NumberField({
 					/>
 				</GridItem>
 				{!!unitsOpts.length && (
-					<GridItem className={cx(unitsOpts.length === 1 && 'opacity-50 pointer-events-none')}>
+					<GridItem className={cx(unitsOpts.length === 1 && 'pointer-events-none opacity-50')}>
 						<SelectField
 							caret=""
 							size="x2s"

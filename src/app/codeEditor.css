@@ -37,6 +37,32 @@ input[type='search']::-webkit-search-cancel-button {
   pointer-events: none; */
 }
 
+[type='checkbox'], [type='radio'] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    display: inline-block;
+    vertical-align: middle;
+    background-origin: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    flex-shrink: 0;
+    height: 1rem;
+    width: 1rem;
+    color: #2563eb;
+    border-color: #6b7280;
+    border-width: 1px;
+    --tw-shadow: 0 0 #0000;
+}
+
+[type='radio']:checked {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+}
+
 html {
 	font-size: 14px;
 }
@@ -51,9 +77,10 @@ h3,
 h4,
 h5,
 h6 {
-	@apply text-title font-semibold;
+	@apply font-semibold text-title;
 }
 
+mark,
 p,
 span,
 i,
@@ -63,71 +90,11 @@ s {
 }
 
 .react-split__sash {
-	@apply !z-50;
+	@apply !z-40;
 }
 /* Style color monaco editor */
-[data-mode-id='javascript'] .monaco-editor .mtk1,
-[data-mode-id='javascript'] .monaco-editor .attr-name {
-	color: #8ad3ff;
-}
-
-[data-mode-id='javascript'] .monaco-editor .mtk1.tag,
-[data-mode-id='javascript'] .monaco-editor .mtk1.start-tag-name,
-[data-mode-id='javascript'] .monaco-editor .mtk1.end-tag-name {
-	color: #569cd6;
-}
-
-[data-mode-id='javascript'] .monaco-editor .mtk22.tag,
-[data-mode-id='javascript'] .monaco-editor .mtk22.start-tag-name,
-[data-mode-id='javascript'] .monaco-editor .mtk22.end-tag-name {
+:is([data-mode-id='vue']) .monaco-editor .mtk16 {
 	color: #3dc1a0;
-}
-
-[data-mode-id='javascript'] .monaco-editor .mtk9.tag,
-[data-mode-id='javascript'] .monaco-editor .tag-start,
-[data-mode-id='javascript'] .monaco-editor .tag-end,
-[data-mode-id='javascript'] .monaco-editor .end-tag-start,
-[data-mode-id='javascript'] .monaco-editor .end-tag-end {
-	color: #6d6d6d;
-}
-
-[data-mode-id='javascript'] .monaco-editor .as-keyword,
-[data-mode-id='javascript'] .monaco-editor .await-keyword,
-[data-mode-id='javascript'] .monaco-editor .catch-keyword,
-[data-mode-id='javascript'] .monaco-editor .default-keyword,
-[data-mode-id='javascript'] .monaco-editor .else-keyword,
-[data-mode-id='javascript'] .monaco-editor .export-keyword,
-[data-mode-id='javascript'] .monaco-editor .from-keyword,
-[data-mode-id='javascript'] .monaco-editor .if-keyword,
-[data-mode-id='javascript'] .monaco-editor .import-keyword,
-[data-mode-id='javascript'] .monaco-editor .return-keyword,
-[data-mode-id='javascript'] .monaco-editor .static-keyword,
-[data-mode-id='javascript'] .monaco-editor .try-keyword {
-	color: #b86cb4;
-}
-
-[data-mode-id='javascript'] .monaco-editor .regex {
-	color: #d16969;
-}
-[data-mode-id='javascript'] .monaco-editor .function,
-[data-mode-id='javascript'] .monaco-editor .function-variable {
-	color: #d4d797;
-}
-
-[data-mode-id='javascript'] .monaco-editor .class-name,
-[data-mode-id='javascript'] .monaco-editor .builtin,
-[data-mode-id='javascript'] .monaco-editor .globals {
-	color: #3dc1a0;
-}
-[data-mode-id='javascript'] .monaco-editor .arrow-operator,
-[data-mode-id='javascript'] .monaco-editor .jsx-exp-start,
-[data-mode-id='javascript'] .monaco-editor .jsx-exp-end {
-	color: #569cd6;
-}
-
-[data-mode-id='javascript'] .monaco-editor .jsx-text,
-[data-mode-id='javascript'] .monaco-editor .plain-text {
-	color: #d4d4d4;
 }
 
 :root {
@@ -154,6 +121,14 @@ s {
 
 .parent.show .child {
 	display: none;
+}
+
+.parent.show:hover .unchild {
+	display: none;
+}
+
+.parent.show .unchild {
+	display: flex;
 }
 
 /* Style xterm */
@@ -347,4 +322,49 @@ s {
 
 .os-scrollbar .os-scrollbar-handle:hover {
 	background-color: #4d4d4d;
+}
+
+
+/* Input width increase text */
+.input-sizer {
+  @apply relative inline-grid bg-transparent text-gray-300;
+}
+
+.input-sizer::after,
+.input-sizer input,
+.input-sizer textarea {
+  @apply w-auto col-start-2 col-end-auto row-start-1 row-end-auto bg-transparent border-none appearance-none resize-none text-13 min-w-1 bg-none;
+}
+
+.input-sizer::after {
+  @apply content-[attr(data-value)] invisible whitespace-pre-wrap;
+}
+
+.input-sizer:focus-within textarea:focus,
+.input-sizer:focus-within input:focus {
+  @apply outline-none;
+}
+
+.search-result .mark {
+	  @apply bg-yellow-300;
+}
+
+mark {
+	background: #693c1f;
+}
+
+/* Style image Editor */
+.ImageEditor {
+    background-image: linear-gradient(45deg,#292929 25%,#0000 0),linear-gradient(-45deg,#292929 25%,#0000 0),linear-gradient(45deg,#0000 75%,#292929 0),linear-gradient(-45deg,#0000 75%,#292929 0);
+    background-position: 0 0,0 7px,7px -7px,-7px 0;
+    background-size: 14px 14px;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 38px;
+}
+
+.dropzone.active {
+	box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(62, 134, 242) 0px 0px 0px 1px inset;
 }

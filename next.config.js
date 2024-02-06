@@ -3,10 +3,11 @@ const path = require('path')
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 const webcontainerHeaderConfig = [
-					{ key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-					{ key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-					{ key: 'Access-Control-Allow-Origin', value: '*' },
-				]
+	{ key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+	{ key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+	{ key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
+	{ key: 'Access-Control-Allow-Origin', value: '*' },
+]
 
 const nextConfig = {
 	reactStrictMode: false,
@@ -21,6 +22,17 @@ const nextConfig = {
 					filename: 'static/[name].worker.js',
 				}),
 			)
+
+			config.resolve = {
+				...(!!config?.resolve ? { ...config.resolve } : {}),
+				alias: {
+					inferno:
+						process.env.NODE_ENV !== 'production'
+							? 'inferno/dist/index.dev.esm.js'
+							: 'inferno/dist/index.esm.js',
+				},
+				mainFields: ['browser', 'dev:module', 'module', 'main'],
+			}
 		}
 		return config
 	},
@@ -28,7 +40,7 @@ const nextConfig = {
 		// return []
 		return [
 			{
-				source: '/projects',
+				source: '/projects/:path*',
 				headers: webcontainerHeaderConfig,
 			},
 			{
@@ -40,6 +52,16 @@ const nextConfig = {
 				headers: webcontainerHeaderConfig,
 			},
 		]
+	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: '**',
+				port: '',
+				pathname: '**',
+			},
+		],
 	},
 }
 

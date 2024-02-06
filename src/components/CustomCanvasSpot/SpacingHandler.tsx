@@ -6,7 +6,7 @@ import Badge from '../Badge'
 import CanvasSpotPlacer from '../Grapesjs/CanvasSpotPlacer'
 import { CanvasSpotWrapperProps } from '../Grapesjs/CanvasSpotWrapper'
 import { cl } from '../theme'
-import { usePointerBadgeStore } from '../../store/builder/PointerBadgeStore'
+import { usePointerBadgeStore } from '../../store/PointerBadgeStore'
 
 export type OnActive = (type?: DragSpacingHandlerType) => void
 

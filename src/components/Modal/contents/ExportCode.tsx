@@ -2,11 +2,11 @@ import type { Editor, Asset } from 'grapesjs'
 import { observer } from 'mobx-react-lite'
 import Grid from '../../Grid'
 import GridItem from '../../GridItem'
-import { useAppEditorStore } from '../../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../../store/appEditorStore'
 import CodeField from '../../CodeField'
 import { useState } from 'react'
 import Button from '../../Button'
-import { useI18nStore } from '../../../store/builder/I18nStore'
+import { useI18nStore } from '../../../store/I18nStore'
 import { cssFormat } from '../../StyleCode'
 import { getPageSlug, toSafeFilename } from '../../../plugins/web/utils'
 
@@ -72,9 +72,10 @@ export default observer(function ExportCode() {
 			filenamePfx: 'gjs-export',
 			root: async (editor: Editor) => {
 				const pages = editor.Pages.getAll()
-				const pagesHTML = pages.reduce((acc, page) => {
-					const filename = getPageSlug(editor, page)
-					let html = `<!doctype html>
+				const pagesHTML = pages.reduce(
+					(acc, page) => {
+						const filename = getPageSlug(editor, page)
+						let html = `<!doctype html>
             <html lang="en">
               <head>
                 <meta charset="utf-8">
@@ -88,13 +89,15 @@ export default observer(function ExportCode() {
               ${page.getMainComponent().toHTML()}
             </html>
           `
-					html = replaceDataUrlAssets(html, dataUrlMap, {
-						pathPfx: `${ASSETS_DIR}/`,
-					})
-					acc[filename] = html
+						html = replaceDataUrlAssets(html, dataUrlMap, {
+							pathPfx: `${ASSETS_DIR}/`,
+						})
+						acc[filename] = html
 
-					return acc
-				}, {} as Record<string, string>)
+						return acc
+					},
+					{} as Record<string, string>,
+				)
 
 				const assets: Record<string, string> = {}
 				const cssString = replaceDataUrlAssets(editor.getCss({ keepUnusedStyles: true }) || '', dataUrlMap, {

@@ -1,7 +1,7 @@
 import { LayersProvider, PagesProvider } from '@grapesjs/react'
 import { observer } from 'mobx-react-lite'
 import { useMemo } from 'react'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
 import cx from '../../utils/makeCls'
 import Grid from '../Grid'
 import GridItem from '../GridItem'

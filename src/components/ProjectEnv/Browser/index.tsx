@@ -1,33 +1,62 @@
 import { isSameOrigin, isUrlValid } from '@/utils/strings'
-import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react'
+import { KeyboardEvent, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { FaArrowRotateRight } from 'react-icons/fa6'
-import { toast } from 'react-toastify'
 import { useWebContainer } from '../../../contexts/WebContainer/hooks'
+import webContainerService from '../../../services/WebContainerService'
+import { listenEvent } from '../../../utils/events'
+import { Port } from '../../../utils/types'
 
-const Browser = memo<{ isResizing: boolean }>(function Browser({ isResizing }) {
+export type BrowserRef = {
+	openNewTab: () => void
+}
+
+let originUrl: string = ''
+
+const Browser = forwardRef<BrowserRef, { isResizing: boolean }>(function Browser({ isResizing }, ref) {
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const [url, setUrl] = useState('')
 	const [urlTmp, setUrlTmp] = useState('')
-	const originUrlRef = useRef('')
 
 	const { webContainer } = useWebContainer()
 
 	useEffect(() => {
 		if (webContainer) {
-			webContainer.on('server-ready', (port, url) => {
-				if (iframeRef.current) {
-					iframeRef.current.src = url
+			webContainer.on('server-ready', (port, url) => {})
+
+			webContainer.on('port', (port, type, url) => {
+				if (type === 'open') {
+					webContainerService.addPort({ port, url })
+					if (webContainerService.getPortActive() === null) webContainerService.setPortActive({ port, url })
+					return
 				}
-				if (originUrlRef.current) originUrlRef.current = url
-				setUrl(url)
-				setUrlTmp(url)
+
+				webContainerService.removePort(port)
 			})
 		}
-	}, [webContainer])
+	}, [webContainer, webContainerService])
+
+	useEffect(() => {
+		const portActive = webContainerService.getPortActive()
+		if (portActive) {
+			setUrl(portActive.url)
+			setUrlTmp(portActive.url)
+		}
+		const remove = listenEvent('web-container:active-port', ({ detail }: { detail: Port }) => {
+			if (iframeRef.current) {
+				iframeRef.current.src = detail.url
+			}
+
+			setUrl(detail.url)
+			setUrlTmp(detail.url)
+		})
+
+		return remove
+	}, [])
 
 	const access = (url: string) => {
 		if (iframeRef.current) iframeRef.current.src = url
+		setUrlTmp(url)
 	}
 
 	useEffect(() => {
@@ -42,17 +71,16 @@ const Browser = memo<{ isResizing: boolean }>(function Browser({ isResizing }) {
 		if (e.key === 'Enter') {
 			if (!isUrlValid(urlTmp)) return
 
-			if (isSameOrigin(originUrlRef.current, urlTmp)) {
+			if (isSameOrigin(url, urlTmp)) {
 				setUrl(urlTmp)
 
-				// Reload when entering the input without changing the url.
 				if (url === urlTmp) {
 					handleReload()
 				}
 			}
 			// Reset the previous url, if the user enters a cross domain.
 			else {
-				toast.error('Cross-domains are not accessible', { autoClose: 1500 })
+				setUrlTmp(url)
 			}
 
 			// Always blur from input after pressing enter.
@@ -60,26 +88,34 @@ const Browser = memo<{ isResizing: boolean }>(function Browser({ isResizing }) {
 		}
 	}
 
+	useImperativeHandle(ref, () => ({
+		openNewTab: () => {
+			window.open(url, '_blank')
+		},
+	}))
+
 	return (
 		<div className={`h-full ${isResizing ? 'pointer-events-none' : ''}`}>
-			<div className="flex px-3 bg-black h-10">
-				<button className="h-10 w-10 flex items-center justify-center">
+			<div className="flex h-10 bg-black px-3">
+				<button className="flex h-10 w-10 items-center justify-center" onClick={handleReload}>
 					<FaArrowRotateRight />
 				</button>
-				<div className="flex-1 py-1 flex">
+				<div className="flex flex-1 py-1">
 					<input
 						ref={inputRef}
 						type="text"
-						value={url}
-						onChange={(e) => {}}
-						className="h-full w-full text-13 whitespace-nowrap text-ellipsis rounded-full outline-none border-2 px-3 py-1 border-transparent hover:border-gray-500 focus:border-sky-600 bg-neutral-900"
-						onKeyDown={e => handleAccess}
+						value={urlTmp}
+						onChange={e => {
+							setUrlTmp(e.target.value)
+						}}
+						className="h-full w-full text-ellipsis whitespace-nowrap rounded-full border-2 border-transparent bg-neutral-900 px-3 py-1 text-13 outline-none hover:border-gray-500 focus:border-sky-600"
+						onKeyDown={handleAccess}
 					/>
 				</div>
 			</div>
 			<iframe
 				ref={iframeRef}
-				className={'w-full h-full bg-white'}
+				className={'h-full w-full'}
 				src={url}
 				referrerPolicy="origin"
 				title="Preview"

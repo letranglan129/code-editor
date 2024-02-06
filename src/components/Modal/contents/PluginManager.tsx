@@ -3,14 +3,9 @@
 import { observer } from 'mobx-react-lite'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { VirtuosoGrid } from 'react-virtuoso'
-import { useI18nStore } from '../../../store/builder/I18nStore'
-import { useAppEditorStore, useTransitionEnd } from '../../../store/builder/appEditorStore'
-import {
-	installPlugin,
-	loadInstalledPlugins,
-	uninstallPlugin,
-	usePluginStore,
-} from '../../../store/builder/pluginStore'
+import { useI18nStore } from '../../../store/I18nStore'
+import { useAppEditorStore, useTransitionEnd } from '../../../store/appEditorStore'
+import { installPlugin, loadInstalledPlugins, uninstallPlugin, usePluginStore } from '../../../store/pluginStore'
 import { cx } from '../../../utils/makeCls'
 import { InstallablePlugin, ProjectType } from '../../../utils/types'
 import Badge from '../../Badge'

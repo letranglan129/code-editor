@@ -1,6 +1,6 @@
 import Editor, { EditorProps } from '@monaco-editor/react'
 import { observer } from 'mobx-react-lite'
-import { useLocalSettingsStore } from '../../store/builder/localSettings'
+import { useLocalSettingsStore } from '../../store/localSettings'
 import { isDef } from '../../utils'
 import { cx } from '../../utils/makeCls'
 import LabelField from '../LabelField'

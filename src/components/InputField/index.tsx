@@ -14,6 +14,9 @@ export interface InputFieldProps {
 	label?: React.ReactNode
 	size?: 'm' | 's'
 	type?: string
+	isTextarea?: boolean
+	inputAttributes?: React.InputHTMLAttributes<HTMLInputElement>
+	textareaAttributes?: React.TextareaHTMLAttributes<HTMLTextAreaElement>
 	onInput?(value: string): void
 	onChange?(value: string, partial?: boolean): void
 }
@@ -24,7 +27,7 @@ export const getInputClassName = () => {
 	return cx('w-full placeholder:italic', cl.bgTr, elStyles.inputText)
 }
 
-export default function InputField({
+export default function InputField<T>({
 	className,
 	value,
 	label,
@@ -32,6 +35,9 @@ export default function InputField({
 	type,
 	placeholder,
 	required,
+	isTextarea = false,
+	inputAttributes = {},
+	textareaAttributes = {},
 	onInput,
 	onChange,
 }: InputFieldProps) {
@@ -50,7 +56,7 @@ export default function InputField({
 		onChange?.(value, partial)
 	}
 
-	const handleKeyDown = (ev: KeyboardEvent<HTMLInputElement>) => {
+	const handleKeyDown = (ev: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		const { key } = ev
 
 		switch (key) {
@@ -61,7 +67,7 @@ export default function InputField({
 		}
 	}
 
-	const handleBlur = (ev: React.FocusEvent<HTMLInputElement>) => {
+	const handleBlur = (ev: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		handleChange(stateValue)
 	}
 
@@ -69,21 +75,44 @@ export default function InputField({
 		<div className={cx(className)}>
 			{!!label && <LabelField size={size}>{label}</LabelField>}
 			<Grid
-				className={cx(cl.bg, br.b, br.rnd, cl.br, size === 'm' && pad.xy, size === 's' && 'px-3 py-1')}
+				className={cx(
+					cl.bg,
+					br.b,
+					br.rnd,
+					cl.br,
+					size === 'm' && pad.xy,
+					size === 's' && 'px-3 py-1',
+					'focus-within:border-sky-600',
+				)}
 				items="center"
 				space="x2s"
 			>
 				<GridItem grow>
-					<input
-						className={classInput}
-						value={stateValue}
-						onChange={ev => setStateValue(ev.target.value)}
-						placeholder={placeholder}
-						required={required}
-						onBlur={handleBlur}
-						onKeyDown={handleKeyDown}
-						type={type}
-					/>
+					{isTextarea ? (
+						<textarea
+							className={classInput}
+							value={stateValue}
+							onChange={ev => setStateValue(ev.target.value)}
+							placeholder={placeholder}
+							required={required}
+							rows={3}
+							onBlur={handleBlur}
+							onKeyDown={handleKeyDown}
+							{...textareaAttributes}
+						/>
+					) : (
+						<input
+							className={classInput}
+							value={stateValue}
+							onChange={ev => setStateValue(ev.target.value)}
+							placeholder={placeholder}
+							required={required}
+							onBlur={handleBlur}
+							onKeyDown={handleKeyDown}
+							type={type}
+							{...inputAttributes}
+						/>
+					)}
 				</GridItem>
 			</Grid>
 		</div>

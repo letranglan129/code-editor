@@ -1,5 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import './globals.css'
+import { NextAuthProvider } from '../contexts/NextAuth/Provider'
+import { ThemeProvider } from '../contexts/Theme/Provider'
+import NextTopLoader from 'nextjs-toploader'
+import { OptionProvider } from '../contexts/Option/Provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -12,7 +17,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<html lang="en" suppressHydrationWarning={true}>
 			<body className={inter.className} suppressHydrationWarning={true}>
-				{children}
+				<NextTopLoader />
+
+				<NextAuthProvider>
+					<ThemeProvider>
+						<OptionProvider>{children}</OptionProvider>
+					</ThemeProvider>
+				</NextAuthProvider>
 			</body>
 		</html>
 	)

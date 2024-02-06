@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react'
 import { observer } from 'mobx-react-lite'
 import CustomCanvasSpot from '.'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
 import CanvasSpotsProvider from '../Grapesjs/CanvasSpotsProvider'
 import { tsOpacEnter } from '../theme'
 import { ReactNode } from 'react'

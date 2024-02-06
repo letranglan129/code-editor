@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.no-bg .dx-datagrid,
+.no-bg .dx-datagrid > .dx-datagrid-headers,
+.no-bg .dx-datagrid > .dx-datagrid-rowsview,
+.no-bg .dx-datagrid > .dx-datagrid-total-footer {
+	@apply !bg-transparent !text-12;
+}
+
+.dx-datagrid-borders > .dx-datagrid-headers,
+.dx-datagrid-borders > .dx-datagrid-rowsview,
+.dx-datagrid-borders > .dx-datagrid-total-footer {
+	@apply !border-l-0 !border-r-0 border-t-0;
+}
+
+.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+	@apply !border-b-2 !border-grayDark font-bold;
+}
+
+.dx-datagrid-pager {
+	@apply !border-t-2 !border-grayDark;
+}
+
+.dx-datagrid-borders > .dx-datagrid-rowsview,
+.dx-datagrid .dx-row-lines > td {
+	@apply !border-b !border-[hsl(220_60%_95%_/_0.06)];
+}
+
+.dx-datagrid .dx-row > td {
+	padding: 11px 7px !important;
+}
+
+.dx-datagrid .dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused):hover.dx-row-lines > td,
+.dx-datagrid .dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused) > td {
+	@apply !bg-neutral-900 bg-opacity-50 !border-[hsl(220_60%_95%_/_0.06)];
+}
+
+.dx-list .dx-empty-message {
+	@apply text-center
+}
+
+.personal-popover .card {
+	background-color: #26292d;
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem 0 rgb(0 0 0 / 20%);
+}
+
+.project-profile-list .dx-list-item {
+	@apply border-t-0 bg-neutral-900 mt-2 bg-opacity-40 rounded-md;
+}
+
+.project-profile-list .dx-list-item .dx-list-item-content {
+	@apply py-3 px-4;
+}
+
+.no-padding.dx-button-has-text .dx-button-content {
+	@apply p-0;
+}
+
+.project-profile-list .dx-list-next-button {
+	@apply hidden
+}
+
+.dx-texteditor-input {
+	@apply min-h-8
+}
+
+.file-uploader-no-paddding .dx-fileuploader-wrapper,
+.file-uploader-no-paddding .dx-fileuploader-input-wrapper {
+	@apply p-0 m-0 border-none;
+}
+
+.dx-layout-manager .dx-label-h-align.dx-flex-layout:not(.dx-field-item-label-align) {
+	@apply items-center;
+}

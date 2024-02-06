@@ -35,18 +35,18 @@ export default function Modal({
 }: ModalProps) {
 	const closeModal = () => closable && onClose()
 	const clsDialog = cx([
-		'relative w-full p-5 my-8 overflow-hidden shadow-xl rounded-xl flex flex-col',
+		'relative w-full p-5 my-8 shadow-xl rounded-xl flex flex-col max-h-[calc(100vh_-_100px)] overflow-hidden',
 		br.b,
 		cl.br,
 		cl.bg,
 		cl.txt,
-		size === 'l' ? 'max-w-5xl' : size === 's' ? 'max-w-sm' : 'max-w-md',
+		size === 'l' ? 'max-w-6xl' : size === 's' ? 'max-w-sm' : 'max-w-md',
 	])
 
 	return (
 		<Transition show={open} as={Fragment}>
-			<Dialog onClose={closeModal} className="fixed z-20 inset-0 overflow-y-auto" static>
-				<div className={cx('flex justify-center min-h-screen', fullH ? 'items-stretch' : 'items-center')}>
+			<Dialog onClose={closeModal} className="fixed inset-0 z-50 overflow-y-auto" static>
+				<div className={cx('flex min-h-screen justify-center', fullH ? 'items-stretch' : 'items-center')}>
 					<Transition.Child
 						as={Fragment}
 						enter="ease-out duration-100"
@@ -62,7 +62,7 @@ export default function Modal({
 					<Transition.Child as={Fragment} {...ts}>
 						<div className={clsDialog}>
 							{closable && (
-								<div className="absolute top-0 right-0 m-3">
+								<div className="absolute right-0 top-0 m-3">
 									<ButtonWithTooltip block border={false} onClick={closeModal}>
 										<Icon path={mdiClose} size={1} />
 									</ButtonWithTooltip>
@@ -72,7 +72,7 @@ export default function Modal({
 								{title}
 							</Dialog.Title>
 							<Dialog.Description>{description}</Dialog.Description>
-							<Dialog.Panel className="mt-4 h-full">{children}</Dialog.Panel>
+							<Dialog.Panel className="mt-4 h-full overflow-auto">{children}</Dialog.Panel>
 							{buttons.length > 0 && (
 								<Grid className="mt-4" space="m" items="center" justify="end">
 									{buttons.map((button, i) => (

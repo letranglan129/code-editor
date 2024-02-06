@@ -4,8 +4,8 @@ import GjsEditor, { AssetsProvider, Canvas, ModalProvider } from '@grapesjs/reac
 import type { Editor } from 'grapesjs'
 import { observer } from 'mobx-react-lite'
 import { useMemo } from 'react'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
-import { usePluginStore } from '../../store/builder/pluginStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
+import { usePluginStore } from '../../store/pluginStore'
 import cx from '../../utils/makeCls'
 import AssetManager from '../AssetManager'
 import BlockManagerContainer from '../BlockManager/container'
@@ -13,12 +13,13 @@ import CanvasSpots from '../CustomCanvasSpot/CanvasSpots'
 import Grid from '../Grid'
 import GridItem from '../GridItem'
 import Modal from '../Modal'
-import { br, cl } from '../theme'
+import { br, cl, ts } from '../theme'
 import BuiltInRTE from './BuiltInRTE'
 import EditorLeftSidebar from './EditorLeftSidebar'
 import EditorRightSidebar from './EditorRightSidebar'
 import EditorTopbar from './EditorTopbar'
 import { getEditorOptions } from './editorOptions'
+import { addComponent } from '../../utils/components'
 
 export default observer(function EditorApp() {
 	const { projectType, editorConfig, editorKey, setEditor } = useAppEditorStore()
@@ -29,6 +30,37 @@ export default observer(function EditorApp() {
 	)
 	const onEditor = (editor: Editor) => {
 		setEditor(editor)
+		addComponent(editor, {
+			id: 'JS',
+			models: {
+				default: {
+					tagName: 'div',
+					attributes: {
+						'tag-code': 'JSCode',
+						id: 'JSCode',
+					},
+					script: function (props: any) {
+						const script = document.createElement('script')
+						script.onload = () => {
+							console.log('JSCode loaded')
+						}
+						script.src = 'https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.min.js'
+						document.body.appendChild(script)
+					},
+				},
+			},
+			isComponent(el) {
+				return el.id === 'JSCode'
+			},
+			component: () => <div></div>,
+		})
+		// @ts-ignore
+		editor.BlockManager.add('js-block', {
+			content: {
+				type: 'JS',
+			},
+			label: 'JS',
+		})
 		;(window as any).editor = editor
 
 		// Test infinite canvas

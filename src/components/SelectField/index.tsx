@@ -139,8 +139,8 @@ export default function SelectField({
 			? handlerSelected(selected)
 			: selected.label
 		: handlerSelected
-		? handlerSelected(emptyOption)
-		: emptyState
+			? handlerSelected(emptyOption)
+			: emptyState
 	includeEmpty && opts.unshift(emptyOption)
 
 	const onKeyDown = (ev: KeyboardEvent<HTMLInputElement>) => {
@@ -195,7 +195,7 @@ export default function SelectField({
 									icon={caret}
 									shadow={false}
 									className={className}
-									titleClass=""
+									titleClass="justify-between w-full"
 								/>
 							)}
 						</Listbox.Button>
@@ -204,7 +204,7 @@ export default function SelectField({
 						{/* <Listbox.Options static={open} className={clsOptions} style={getPosValues(isOpen, refBtn.current, refPanel.current)}> */}
 						<Listbox.Options
 							static={open}
-							className={optionsClassName}
+							className={optionsClassName + ' z-[99]'}
 							ref={setRefOptions}
 							style={styles.popper}
 							{...attributes.popper}

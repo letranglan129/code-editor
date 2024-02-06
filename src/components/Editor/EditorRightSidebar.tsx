@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { useMemo } from 'react'
-import { useAppEditorStore } from '../../store/builder/appEditorStore'
+import { useAppEditorStore } from '../../store/appEditorStore'
 import cx from '../../utils/makeCls'
 import DesignManager from '../DesignManager'
 import Resizable from '../Resizable'

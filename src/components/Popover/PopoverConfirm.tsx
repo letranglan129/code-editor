@@ -1,5 +1,5 @@
 import Popover, { PopoverProps } from '.'
-import { useI18nStore } from '../../store/builder/I18nStore'
+import { useI18nStore } from '../../store/I18nStore'
 import Button from '../Button'
 import Grid from '../Grid'
 import GridItem from '../GridItem'
