@@ -30,11 +30,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
 	const [query, setQuery] = useState<string>('')
 
 	const router = useRouter()
-
-	if (status === 'unauthenticated') {
-		router.push('/')
-	}
-
+	
 	const modelStore = useModalStore()
 
 	const dataSource = useMemo(

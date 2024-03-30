@@ -4,8 +4,8 @@ import { createStore } from 'devextreme-aspnet-data-nojquery'
 import { TextBox } from 'devextreme-react/text-box'
 import DataSource from 'devextreme/data/data_source'
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import List, { ListRef } from '../../../../../components/List'
+import { useEffect, useMemo, useState } from 'react'
+import List from '../../../../../components/List'
 import ProjectFullInfo from '../../../../../components/List/ProjectFullInfo'
 import Scrollbar from '../../../../../components/Scrollbar'
 import { IProject } from '../../../../../modules/mongo/schema/Project'
@@ -33,6 +33,10 @@ export default function ProfilePage() {
 			}
 		})
 	}, [dataSource])
+
+	useEffect(() => {
+		document.title = 'Profile - Code Builder'
+	}, [])
 
 	return (
 		<Scrollbar className="flex  h-[unset] flex-1">

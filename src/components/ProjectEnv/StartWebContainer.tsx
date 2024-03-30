@@ -184,9 +184,16 @@ const StartWebContainer = memo<{
 			const handle = (path: string) => async (event: string, fileName: string) => {
 				setTimeout(async () => {
 					const filePath = path + fileName
-
+					
 					// Ignore node_modules
-					if (filePath.includes('node_modules') || filePath.includes('.nuxt') || filePath.includes('.next'))
+					if (
+						filePath.includes('node_modules') ||
+						filePath.includes('.svelte-kit') ||
+						filePath.includes('.nuxt') ||
+						filePath.startsWith('build') ||
+						filePath.startsWith('dist') ||
+						filePath.includes('.next')
+					)
 						return
 
 					try {

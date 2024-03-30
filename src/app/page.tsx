@@ -4,26 +4,28 @@ import Image from 'next/image'
 import Link from 'next/link'
 import './home.css'
 
-import { signOut, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import 'overlayscrollbars/overlayscrollbars.css'
+import PopoverUser from '../components/Popover/PopoverUser'
 import ProjectStarter from '../components/ProjectStarter'
 import Scrollbar from '../components/Scrollbar'
-import { StoreProvider } from '../store'
 import lang from '../locale/en'
-import Popover from '../components/Popover'
-import { IoHome, IoOptions, IoPersonCircleOutline } from 'react-icons/io5'
-import { GiExitDoor } from 'react-icons/gi'
-import PopoverUser from '../components/Popover/PopoverUser'
+import { StoreProvider } from '../store'
+import { useEffect } from 'react'
 
 const links = [
 	{ href: '/', label: lang.home },
 	{ href: '/dashboard', label: lang.dashboard },
-	{ href: '/about', label: lang.code },
 	{ href: '/builder', label: lang.builder },
+	{ href: 'https://github.com/letranglan129/code-editor', label: lang.github },
 ]
 
 export default function Page() {
 	const { data: session, status, update } = useSession()
+
+	useEffect(() => {
+		document.title = 'Home - Code Builder'
+	}, [])
 
 	return (
 		<StoreProvider>

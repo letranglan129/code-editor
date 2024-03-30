@@ -10,6 +10,7 @@ import { FaPlus } from 'react-icons/fa'
 import { FaArrowDownLong } from 'react-icons/fa6'
 import ProjectStarter from '../../../../components/ProjectStarter'
 import lang from '../../../../locale/en'
+import { useEffect } from 'react'
 const ProjectsTable = dynamic(() => import('../../../../components/Table/ProjectsTable'), {
 	ssr: false,
 })
@@ -17,6 +18,10 @@ const ProjectsTable = dynamic(() => import('../../../../components/Table/Project
 export default function Dashboard() {
 	const modelStore = useModalStore()
 
+	useEffect(() => {
+		document.title = 'Dashboard - Code Builder'
+	}, [])
+	
 	return (
 		<Scrollbar className="flex h-[unset] flex-1">
 			<div className=" flex min-h-full flex-col p-2 sm:p-4 md:p-8">

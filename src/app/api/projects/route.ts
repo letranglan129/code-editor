@@ -38,7 +38,7 @@ export async function DELETE(req: NextRequest) {
 	const session = await getServerSession(authOptions)
 	const key = (await req.formData()).get('key') as string
 
-	const project = await Project.findById(key).lean()
+	const project = await Project.findBySlug(key)
 
 	if (session?.user.id !== String(project?.uuid) && isPermissionCoOwnerDB(project?.permissions, session?.user?.id)) {
 		return Response.json({}, { status: 401 })

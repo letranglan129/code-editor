@@ -49,6 +49,10 @@ export default observer(function CodeEditor({ projectId }: { projectId: string }
 	const handleDragFinished = useCallback(() => setIsStartResize(false), [])
 
 	useEffect(() => {
+		document.title = `${projectCodeStore.project?.title} - Code Builder`
+	}, [projectCodeStore])
+
+	useEffect(() => {
 		const remove = listenEvent(
 			'keydown',
 			async (e: KeyboardEvent) => {
@@ -78,7 +82,7 @@ export default observer(function CodeEditor({ projectId }: { projectId: string }
 
 					if (
 						status === 'authenticated' &&
-						isPermissionView(projectCodeStore.project?.permissions || [], session.user.id)
+						isPermissionView(projectCodeStore.project?.permissions || [], session?.user?.id)
 					) {
 						toastStore.add('permission-viewer', {
 							header: "Can't save",
@@ -91,8 +95,8 @@ export default observer(function CodeEditor({ projectId }: { projectId: string }
 
 					if (
 						status === 'authenticated' &&
-						session.user.id !== projectCodeStore.project?.uuid?._id &&
-						isNonPermission(projectCodeStore.project?.permissions || [], session.user.id)
+						session?.user?.id !== projectCodeStore.project?.uuid?._id &&
+						isNonPermission(projectCodeStore.project?.permissions || [], session?.user?.id)
 					) {
 						const res = await navigationRef.current?.forkProject()
 						res === true && (await navigationRef.current?.handleSaveProject())
@@ -101,8 +105,8 @@ export default observer(function CodeEditor({ projectId }: { projectId: string }
 
 					if (
 						status === 'authenticated' &&
-						(session.user.id === projectCodeStore.project?.uuid?._id ||
-							isPermissionEdit(projectCodeStore.project?.permissions || [], session.user.id))
+						(session?.user?.id === projectCodeStore.project?.uuid?._id ||
+							isPermissionEdit(projectCodeStore.project?.permissions || [], session?.user?.id))
 					) {
 						await navigationRef.current?.handleSaveProject()
 					}
@@ -112,7 +116,7 @@ export default observer(function CodeEditor({ projectId }: { projectId: string }
 		)
 
 		return remove
-	}, [projectCodeStore])
+	}, [projectCodeStore, session, status])
 
 	useEffect(() => {
 		const remove = listenEvent(

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useLoading } from '../../../hooks/useLoading'
 import { signIn } from 'next-auth/react'
@@ -33,6 +33,10 @@ export default function LoginPage() {
 			password: '',
 		},
 	})
+
+	useEffect(() => {
+		document.title = 'Login - Code Builder'
+	}, [])
 
 	const handleLogin = async (data: LoginFormData) => {
 		try {

@@ -22,6 +22,10 @@ export default function Repositories() {
 	const [repos, setRepos] = useState<Repository[]>([])
 
 	useEffect(() => {
+		document.title = 'Repositories - Code Builder'
+	}, [])
+
+	useEffect(() => {
 		const fetchRepos = async () => {
 			if (!session?.tokenGithub) return
 			const { data } = await axios.get<Repository[]>(

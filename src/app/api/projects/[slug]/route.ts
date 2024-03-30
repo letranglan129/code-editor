@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
 		}).lean()
 
 	// @ts-ignore
-	if (session?.user.id !== String(project?.uuid._id) &&
+	if (session?.user?.id !== String(project?.uuid?._id) &&
 		!isPermissionEditDB(project?.permissions, session?.user?.id) &&
 		!isPermissionViewDB(project?.permissions, session?.user?.id) &&
 		project?.visibility === 'private') {
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { slug: string } }) {
-	await connectToDb()
+	const { bucket } = await connectToDb()
 	const data = await req.json()
 	const session = await getServerSession(authOptions)
 	const projectCurrent = await Project.findOne({ slug: params.slug }).lean()
@@ -42,9 +42,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
 		return NextResponse.json({}, { status: 401 })
 	}
 
-	const checkSlug = await Project.countDocuments({ slug: data.slug })
-	if (checkSlug !== 0) {
-		return Response.json({ error: 'Project URL already exists' }, { status: 400 })
+	if (data?.slug) {
+		const checkSlug = await Project.countDocuments({ slug: data?.slug })
+		if (checkSlug !== 0) {
+			return Response.json({ error: 'Project URL already exists' }, { status: 400 })
+		}
+
+		const file = await bucket.find({ filename: `${params.slug}.json` }).toArray()
+		if (file.length > 0) {
+			await bucket.rename(file[0]._id, `${data?.slug}.json`)
+		}
 	}
 
 	const project = await Project.findOneAndUpdate(
@@ -59,5 +66,5 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
 		},
 	).lean()
 
-	return Response.json({ ...project, checkSlug })
+	return Response.json({ ...project })
 }

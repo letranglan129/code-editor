@@ -120,7 +120,16 @@ export default memo(
 				(password: string) => {
 					const fileNestedTree = convertArrayToNestedTree(Object.values(projectService.getEntriesNomalized()))
 					const dockerfile = projectService.getEntryFromPath('dockerfile')
-
+					
+					if (!dockerfile) {
+						toastStore.add('not-dockerfile', {
+							header: 'Not found "dockerfile"',
+							content: 'Create and write dockerfile production for your project',
+							autoHideTimeout: 5000,
+							variant: ToastVariant.Error
+						})
+					}
+						
 					const exposedPorts = findPortDockerfile(dockerfile.content!)
 
 					socket?.emit('run-sh', {

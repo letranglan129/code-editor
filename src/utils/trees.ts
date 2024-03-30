@@ -132,6 +132,14 @@ export const convertArrayToNestedTree = (arr: FileDataType[]) => {
 
 	// Build the nested tree structure
 	arr.forEach(item => {
+		if (item.type === "folder" && (
+			item.name === ".nuxt" ||
+			item.name === ".next" ||
+			item.name === ".svelte-kit" ||
+			item.name === "node_modules"
+		))
+			return
+
 		if (item.parent_id) {
 			// If it has a parent, add it to the parent's children
 			flatMap[item.parent_id].children?.push(flatMap[item.id])
@@ -140,7 +148,6 @@ export const convertArrayToNestedTree = (arr: FileDataType[]) => {
 			nestedTree[item.id] = flatMap[item.id]
 		}
 	})
-
 	return Object.values(nestedTree)
 }
 

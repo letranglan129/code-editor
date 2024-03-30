@@ -1,5 +1,6 @@
-import React from 'react'
-import lang from '../../../../../locale/en'
+"use client"
+
+import { useEffect } from 'react'
 
 const infos = [
 	{
@@ -21,6 +22,11 @@ const infos = [
 ]
 
 export default function ProfilePage() {
+
+	useEffect(() => {
+		document.title = 'Profile - Code Builder'
+	}, [])
+
 	return (
 		<div className="text-neutral-300">
 			<div className="flex items-center mb-4">

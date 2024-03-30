@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 	const session = await getServerSession(authOptions)
 	const data = await req.json()
 
-	const slug = createProjectSlug(data.slug as string, false)
+	const slug = createProjectSlug(data.slug as string)
 
 	const newStarterProject = await Project.createStarterProject(JSON.stringify(data.file), {
 		title: data.title as string,

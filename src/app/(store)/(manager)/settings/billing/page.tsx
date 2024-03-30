@@ -1,6 +1,13 @@
 'use client'
 
+import { useEffect } from 'react'
+
 export default function BillingPage() {
+	
+	useEffect(() => {
+		document.title = 'Billing - Code Builder'
+	}, [])
+
 	return (
 		<div className="flex gap-6 flex-wrap">
 			<div className="flex flex-col flex-1 gap-6 p-6 sm:max-w-80 max-w-full min-w-60 bg-gray-700 bg-opacity-40 text-gray-300 border rounded-md border-gray-600">

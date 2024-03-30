@@ -5,13 +5,17 @@ import lang from '../../../../locale/en'
 import Button from '../../../../components/Button'
 import { FaPlus } from 'react-icons/fa6'
 import TextBox from 'devextreme-react/text-box'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { ProjectsTableRef } from '../../../../components/Table/ProjectsTable'
 
 const ProjectsTable = dynamic(() => import('../../../../components/Table/ProjectsTable'), { ssr: false })
 
 export default function Projects() {
 	const tableRef = useRef<ProjectsTableRef>(null)
+
+	useEffect(() => {
+		document.title = 'Projects - Code Builder'
+	}, [])
 
 	return (
 		<div className="flex flex-col overflow-hidden p-2 sm:p-4 md:p-8">

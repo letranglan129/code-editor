@@ -1,4 +1,4 @@
-import llamaTokenizer from 'llama-tokenizer-js'
+const llamaTokenizer = require('llama-tokenizer-js')
 
 export const countTokens = (text: string) => {
     return llamaTokenizer.encode(text).length;

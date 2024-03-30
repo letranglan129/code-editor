@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useLoading } from '@/hooks/useLoading'
 import { EMAIL_REG, MIN_LENGTH_PASSWORD } from '@/utils/constant'
@@ -31,6 +31,10 @@ const RegisterPage = () => {
 			confirmPassword: '',
 		},
 	})
+
+	useEffect(() => {
+		document.title = "Register - Code Builder"
+	}, [])
 
 	const handleRegister = async (data: RegisterFormData) => {
 		try {
