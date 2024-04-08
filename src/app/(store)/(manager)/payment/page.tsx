@@ -8,6 +8,7 @@ import { formatNumber } from '@/utils/numbers'
 import Link from 'next/link'
 import OrderService from '../../../../services/OrderService'
 import { IOrder } from '../../../../modules/mongo/schema/User'
+import isAuth from '../../../../components/isAuth'
 
 const StatusPage = () => {
 	const searchParams = useSearchParams()
@@ -100,4 +101,4 @@ const StatusPage = () => {
 	)
 }
 
-export default StatusPage
+export default isAuth(StatusPage)

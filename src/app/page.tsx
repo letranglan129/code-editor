@@ -15,7 +15,7 @@ import { useEffect } from 'react'
 
 const links = [
 	{ href: '/', label: lang.home },
-	{ href: '/dashboard', label: lang.dashboard },
+	{ href: '/dashboard', label: lang.dashboard, checkLogin: true },
 	{ href: '/builder', label: lang.builder },
 	{ href: 'https://github.com/letranglan129/code-editor', label: lang.github },
 ]
@@ -37,14 +37,21 @@ export default function Page() {
 						</div>
 						<nav>
 							<ul className="flex list-none items-center justify-evenly">
-								{links.map(({ href, label }) => (
-									<li
-										key={label}
-										className="px-4 py-3 text-14 font-bold text-neutral-400 hover:text-white"
-									>
-										<Link href={href}>{label}</Link>
-									</li>
-								))}
+								{links.map(({ href, label, checkLogin }) => {
+									if (checkLogin) {
+										if (status === 'unauthenticated')
+											return null
+									} 
+
+									return (
+										<li
+											key={label}
+											className="px-4 py-3 text-14 font-bold text-neutral-400 hover:text-white"
+										>
+											<Link href={href}>{label}</Link>
+										</li>
+									)
+								})}
 							</ul>
 						</nav>
 						<div>

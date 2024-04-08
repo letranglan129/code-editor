@@ -4,7 +4,8 @@ import axios from 'axios'
 import moment from 'moment'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import isAuth from '../../../../components/isAuth'
 import lang from '../../../../locale/en'
 
 type Repository = {
@@ -17,10 +18,10 @@ type Repository = {
 	clone_url: string
 }
 
-export default function Repositories() {
-	const { data: session } = useSession()
+export default isAuth(function Repositories() {
+	const { data: session, status } = useSession()
 	const [repos, setRepos] = useState<Repository[]>([])
-
+	
 	useEffect(() => {
 		document.title = 'Repositories - Code Builder'
 	}, [])
@@ -44,30 +45,30 @@ export default function Repositories() {
 	}, [session?.tokenGithub])
 
 	return (
-		<div className="flex flex-col overflow-hidden p-2 sm:p-4 md:p-8 flex-1">
+		<div className="flex flex-1 flex-col overflow-hidden p-2 sm:p-4 md:p-8">
 			<div className="flex items-end justify-between">
 				<h2>{lang.myProjects}</h2>
-				<Link href="" className="hover:underline text-12">
+				<Link href="" className="text-12 hover:underline">
 					{lang.showAll}
 				</Link>
 			</div>
 			{!session?.user.provider && (
-				<div className="text-14 text-center text-neutral-300 my-4">
+				<div className="my-4 text-center text-14 text-neutral-300">
 					Only accounts logged in with github can use it
 				</div>
 			)}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 				{repos.map(repo => (
 					<div key={repo.full_name} className="flex flex-col bg-grayNetural p-4">
-						<h3 className="h-9 text-14 line-clamp-1">{repo.full_name}</h3>
+						<h3 className="line-clamp-1 h-9 text-14">{repo.full_name}</h3>
 
-						<div className="flex justify-between items-center">
+						<div className="flex items-center justify-between">
 							<p className="text-12 text-neutral-400">{moment(repo.updated_at).fromNow()}</p>
-							<img src={repo.owner.avatar_url} className="w-6 h-6 rounded-full" alt="" />
+							<img src={repo.owner.avatar_url} className="h-6 w-6 rounded-full" alt="" />
 						</div>
 					</div>
 				))}
 			</div>
 		</div>
 	)
-}
+})

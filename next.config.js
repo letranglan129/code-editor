@@ -10,6 +10,7 @@ const webcontainerHeaderConfig = [
 ]
 
 const nextConfig = {
+	output: 'standalone',
 	reactStrictMode: false,
 	sassOptions: {
 		includePaths: [path.join(__dirname, 'styles')],

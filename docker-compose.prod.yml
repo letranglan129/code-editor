@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    command: npm run start
+    command: "node server.js"
     ports:
       - "8009:3000"
     env_file:

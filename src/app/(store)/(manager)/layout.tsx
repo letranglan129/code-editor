@@ -28,9 +28,6 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
 	const { data: session, status, update } = useSession()
 	const [isOpenSidebar, setIsOpenSidebar] = useState<boolean>(false)
 	const [query, setQuery] = useState<string>('')
-
-	const router = useRouter()
-	
 	const modelStore = useModalStore()
 
 	const dataSource = useMemo(

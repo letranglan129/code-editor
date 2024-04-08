@@ -2,26 +2,25 @@
 
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
-import React from 'react'
-import { Tab } from '@headlessui/react'
-import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import lang from '../../../../locale/en'
+import { usePathname } from 'next/navigation'
+import React from 'react'
 import Scrollbar from '../../../../components/Scrollbar'
+import isAuth from '../../../../components/isAuth'
+import lang from '../../../../locale/en'
 
 const tabs = [
 	{ name: lang.billing, href: '/settings/billing' },
 	{ name: lang.profile, href: '/settings/profile' },
 ]
 
-export default function SettingLayout({ children }: { children: React.ReactNode }) {
+export default isAuth(function SettingLayout({ children }: { children: React.ReactNode }) {
 	const { data: session, status, update } = useSession()
-
 	const pathname = usePathname()
 
 	return (
 		<Scrollbar className="flex h-[unset] flex-1">
-			<div className="w-full max-w-4xl mx-auto p-2 sm:p-4 md:p-8">
+			<div className="mx-auto w-full max-w-4xl p-2 sm:p-4 md:p-8">
 				<div>
 					{status === 'authenticated' && (
 						<>
@@ -29,31 +28,31 @@ export default function SettingLayout({ children }: { children: React.ReactNode 
 								{session.user?.image && (
 									<Image
 										src={session.user?.image}
-										className="rounded-full flex-shrink-0 mr-2"
+										className="mr-2 flex-shrink-0 rounded-full"
 										width={56}
 										height={56}
 										alt=""
 									/>
 								)}
 								<div>
-									<p className="text-white text-2xl">{session.user?.name}</p>
+									<p className="text-2xl text-white">{session.user?.name}</p>
 								</div>
 							</div>
 						</>
 					)}
 				</div>
-				<div className="flex text-13 font-bold border-b-2 text-gray-400 border-[hsl(0_0%_100%_/_0.1)] ">
+				<div className="flex border-b-2 border-[hsl(0_0%_100%_/_0.1)] text-13 font-bold text-gray-400 ">
 					{tabs.map(tab => (
-						<Link href={tab.href} key={tab.name} className=" text-gray-400 relative">
+						<Link href={tab.href} key={tab.name} className=" relative text-gray-400">
 							<div className={`px-4 py-3 ${tab.href === pathname ? 'text-white' : ''}`}>{tab.name}</div>
 							{tab.href === pathname && (
-								<div className="absolute w-full h-[2px] leading-none bg-white"></div>
+								<div className="absolute h-[2px] w-full bg-white leading-none"></div>
 							)}
 						</Link>
 					))}
 				</div>
-				<div className="w-full max-w-4xl mx-auto py-8">{children}</div>
+				<div className="mx-auto w-full max-w-4xl py-8">{children}</div>
 			</div>
 		</Scrollbar>
 	)
-}
+})

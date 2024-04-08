@@ -7,10 +7,11 @@ import { FaPlus } from 'react-icons/fa6'
 import TextBox from 'devextreme-react/text-box'
 import { useEffect, useRef } from 'react'
 import { ProjectsTableRef } from '../../../../components/Table/ProjectsTable'
+import isAuth from '../../../../components/isAuth'
 
 const ProjectsTable = dynamic(() => import('../../../../components/Table/ProjectsTable'), { ssr: false })
 
-export default function Projects() {
+export default isAuth(function Projects() {
 	const tableRef = useRef<ProjectsTableRef>(null)
 
 	useEffect(() => {
@@ -65,4 +66,4 @@ export default function Projects() {
 			/>
 		</div>
 	)
-}
+})
